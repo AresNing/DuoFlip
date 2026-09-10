@@ -22,6 +22,13 @@
 
 ## 使用
 
+从 [GitHub Releases](https://github.com/AresNing/DuoFlip/releases) 下载 **0.7.0 预览版**：
+
+- [DMG 安装包 · Apple Silicon](https://github.com/AresNing/DuoFlip/releases/download/v0.7.0/DuoFlip-0.7.0-arm64.dmg)
+- [ZIP 压缩包](https://github.com/AresNing/DuoFlip/releases/download/v0.7.0/DuoFlip-0.7.0-arm64.zip) · [SHA256 校验文件](https://github.com/AresNing/DuoFlip/releases/download/v0.7.0/DuoFlip-0.7.0-SHA256.txt)
+
+打开 DMG，将 `DuoFlip.app` 拖入 Applications，再从 Applications 启动；也可解压 ZIP 后复制应用。预览包为 ad-hoc 签名，尚未经过 Apple 公证，其他 Mac 可能受到 Gatekeeper 限制。需要 macOS 15.2+ 及支持翻盖角度读取的 Apple Silicon MacBook。
+
 1. 打开 DuoFlip，左键单击菜单栏图标展开设置浮层。
 2. 开启「开合效果」。默认自动选择内置屏幕，首次需在 macOS「隐私与安全性 → 录屏与系统录音」允许 DuoFlip；按系统要求重启或重新确认权限。
 3. 屏幕正常展开至 95° 以上，再缓缓合盖即可触发。设置中可调节效果强度。

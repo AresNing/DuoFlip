@@ -22,6 +22,13 @@ This demo uses the app's native rendering code, generated desktop artwork, and s
 
 ## Usage
 
+Download the **0.7.0 preview** from [GitHub Releases](https://github.com/AresNing/DuoFlip/releases):
+
+- [DMG installer · Apple Silicon](https://github.com/AresNing/DuoFlip/releases/download/v0.7.0/DuoFlip-0.7.0-arm64.dmg)
+- [ZIP archive](https://github.com/AresNing/DuoFlip/releases/download/v0.7.0/DuoFlip-0.7.0-arm64.zip) · [SHA256 checksums](https://github.com/AresNing/DuoFlip/releases/download/v0.7.0/DuoFlip-0.7.0-SHA256.txt)
+
+Open the DMG, drag `DuoFlip.app` to Applications, and launch it from there. Alternatively, extract the ZIP and copy the app. Preview packages are ad-hoc signed and not notarized by Apple; Gatekeeper may block them on other Macs. Requires macOS 15.2+ and an Apple Silicon MacBook with a readable lid-angle sensor.
+
 1. Open DuoFlip and left-click its menu bar icon to expand the settings popover.
 2. Turn on **Lid effect** (`开合效果`). Automatic selection of the built-in display is enabled by default. On first use, allow DuoFlip under macOS **Privacy & Security → Screen & System Audio Recording**. Restart the app or reconfirm access if macOS requests it.
 3. Open the lid past 95°, then gently close it to trigger the transition. Adjust the effect strength in settings.

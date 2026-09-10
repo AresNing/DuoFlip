@@ -1,0 +1,20 @@
+DuoFlip 0.7.0 (Preview)
+
+Installation: drag DuoFlip.app to Applications and open it. DuoFlip appears in the menu bar, without a Dock icon or main window. The app interface is currently in Simplified Chinese.
+
+Left-click the DuoFlip menu bar icon to open the settings popover. Turn on Lid effect (开合效果). Automatic built-in display selection is enabled by default and requires macOS screen-recording permission on first use. Restart or reconfirm access if the system requests it. Alternatively, turn off Automatically select the built-in display (自动选择内置屏幕) to use the system screen picker. Open the lid past 95 degrees, then gently close it to trigger the transition.
+
+The small dot beside the menu bar icon indicates that the effect is enabled. Hover over the icon to see its name and status. Adjust effect strength in settings; the popover follows the system appearance.
+
+Press Esc or turn off the effect switch to stop capture, release the desktop image, and stop angle sampling. DuoFlip stays in the menu bar. Esc is reserved as a global stop key only while the effect is enabled. Choose Quit DuoFlip (退出 DuoFlip) to exit. Clicking outside the popover or clicking the icon again closes the popover without exiting the app.
+
+While the effect is enabled, a system screen-capture session remains active. Images are processed only in local memory: no saved screenshots or video, no audio or microphone capture, and no uploads. Disabling the effect ends capture. Automatic selection works while permission is valid; manual mode requests a screen selection each time. Launch at login is not configured, and launching the app does not enable the effect.
+
+Meeting-app protection is enabled by default. You can select Feishu/Lark, Tencent Meeting, Zoom, and Microsoft Teams individually. A selected app triggers protection whenever it is running, even without a meeting: the effect is stopped or prevented from starting. This does not detect actual screen sharing. Browser meetings are not detected. Deselect apps you keep running or disable the rule if needed. Capture interruption, errors, or sustained unresponsiveness still stop the effect. DuoFlip does not automatically retry or resume.
+
+Requirements: Apple Silicon MacBook, macOS 15.2 or later, and a readable lid-angle sensor. Physical-device testing has been performed on a MacBook Pro M3 Pro with macOS 26.5.1; other models are not guaranteed to work. Only the built-in display is supported. System lock-screen control and first-frame transitions after wake are not supported guarantees. Automatic capture after granting persistent screen-recording permission, multiple Spaces, and real meeting-sharing scenarios still require further validation.
+
+This preview uses ad-hoc signing, without a Developer ID signature or Apple notarization. Gatekeeper may prevent it from opening on other Macs. It is not a notarized production release and does not include scripts that disable system security checks.
+
+DuoFlip is an independent application. The lid-angle sensor protocol references Sam Gold's LidAngleSensor: https://github.com/samhenrigold/LidAngleSensor
+See the included third-party notices and app-bundled licenses. The package does not include original reference footage, screenshots, captured desktop content, local validation logs, or credentials.

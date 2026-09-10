@@ -21,6 +21,7 @@ fi
 mkdir -p "$deliverable"
 ditto "$app" "$deliverable/DuoFlip.app"
 cp Packaging/使用说明.txt "$deliverable/使用说明.txt"
+cp Packaging/Usage.en.txt "$deliverable/Usage.en.txt"
 cp THIRD_PARTY_NOTICES.md "$deliverable/THIRD_PARTY_NOTICES.md"
 ln -s /Applications "$deliverable/Applications"
 hdiutil create -volname "DuoFlip ${version}" -srcfolder "$deliverable" -format UDZO "${deliverable}-arm64.dmg"
