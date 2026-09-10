@@ -33,6 +33,9 @@ import Foundation
         precondition(stopped.rendered(language:.chinese,bundle:bundle)=="传感器读取失败：-42 · 效果已关闭")
         precondition(stopped.rendered(language:.english,bundle:bundle)=="Could not read lid-angle sensor: -42 · Effect is off")
         precondition(L10n.text("Unknown message",language:.chinese,bundle:bundle)=="Unknown message")
+        let ready:LocalizedMessage="Ready"
+        precondition(ready.rendered(language:.english,bundle:bundle)=="Ready")
+        precondition(ready.rendered(language:.chinese,bundle:bundle)=="已就绪")
         print("PASS: \(en.count) bilingual messages, placeholder parity, system language preference order, explicit overrides, fallback, and live re-rendering of nested statuses")
     }
 }

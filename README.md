@@ -31,7 +31,7 @@ Open the DMG, drag `DuoFlip.app` to Applications, and launch it from there. Alte
 
 1. Open DuoFlip and left-click its menu bar icon to expand the settings popover.
 2. Turn on **Lid effect**. Automatic selection of the built-in display is enabled by default. On first use, allow DuoFlip under macOS **Privacy & Security → Screen & System Audio Recording**. Restart the app or reconfirm access if macOS requests it.
-3. Open the lid past 95°, then gently close it to trigger the transition. Adjust the effect strength in settings.
+3. Open the lid to at least 5° above the trigger angle (95° with the default), then gently close it. Settings offer effect strength and a trigger angle of 75°–125° in 1° steps, defaulting to 90°. Higher angles start the effect earlier; changes are saved and require opening the lid to the new ready angle before the next transition.
 4. Press **Esc** or turn off the effect to stop capture and release the desktop image immediately. DuoFlip stays in the menu bar. Choose **Quit DuoFlip** in the popover to exit the app.
 
 Turn off **Select built-in display automatically** to use the system's screen picker for each capture session. The system sharing indicator remains visible. Automatic selection does not bypass permission checks or enable the effect when the app launches.

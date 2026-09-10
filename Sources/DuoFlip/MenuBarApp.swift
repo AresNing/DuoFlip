@@ -31,6 +31,7 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
             log=try? SessionLog(directory:URL(fileURLWithPath:directory))
         }
         desktop=DesktopController(renderer:EffectRenderer(device:device),metal:device,menuOnly:true)
+        desktop.setAngles(LidAngles(settings.triggerAngle))
         settingsPopover=SettingsPopoverController(state:settings)
         desktop.onEnable = {[weak self] in self?.startEffect()}
         desktop.onSettings = {[weak self] anchor in self?.settingsPopover.toggle(relativeTo:anchor)}
@@ -49,6 +50,15 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
             self.checkMeetingProtection()
         }
         settings.onLanguageChanged = {[weak self] in self?.desktop.refreshLocalization()}
+        settings.onTriggerAngle = {[weak self] value in
+            guard let self else{return}
+            let angles=LidAngles(value)
+            guard self.settings.triggerAngle != angles.start else{return}
+            self.settings.triggerAngle=angles.start
+            UserDefaults.standard.set(angles.start,forKey:"triggerAngle")
+            self.desktop.setAngles(angles)
+            self.lastSample=nil;self.motion.reset()
+        }
         settings.onStrength = {[weak self] value in
             guard let self else{return}
             self.settings.strength=value
@@ -65,7 +75,7 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
         monitor.onSample = {[weak self] sample in
             guard let self,self.monitoring,!self.sleeping else{return}
             self.lastSample=sample;self.motion.accept(sample.angle,at:sample.timestamp)
-            self.log?.sample(sample,filtered:self.motion.angle ?? sample.angle,progress:self.motion.progress(),live:true)
+            self.log?.sample(sample,filtered:self.motion.angle ?? sample.angle,progress:self.motion.progress(angles:self.desktop.angles),live:true)
             self.update()
         }
         monitor.onError = {[weak self] message in
@@ -141,7 +151,7 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
         }
     }
     private func update() {
-        desktop.update(angle:lastSample == nil ? nil:motion.angle,progress:motion.progress(),strength:settings.strength,suspended:sleeping)
+        desktop.update(angle:lastSample == nil ? nil:motion.angle,progress:motion.progress(angles:desktop.angles),strength:settings.strength,suspended:sleeping)
     }
     private func flush() {
         var state=desktop.metrics

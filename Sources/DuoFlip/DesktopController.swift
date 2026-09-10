@@ -10,6 +10,8 @@ final class DesktopController {
     private let inactiveIcon=DuoFlipMark.menuImage(enabled:false)
     private let activeIcon=DuoFlipMark.menuImage(enabled:true)
     private var policy=DesktopPolicy()
+    private(set) var angles=LidAngles()
+    private var readyMessage:LocalizedMessage {"Ready"}
     private var overlay:ExperienceWindow?
     private var effect:EffectView?
     private var previousApp:NSRunningApplication?
@@ -76,7 +78,7 @@ final class DesktopController {
             guard let self else{return}
             if !self.policy.armed {self.policy.enable()}
             self.paused=false;self.userPaused=false;self.starting=false
-            self.setStatus("Ready · Open the lid fully, then gently close it")
+            self.setStatus(self.readyMessage)
             if !self.menuOnly {NSApp.hide(nil)}
             self.onEvent?("desktop-stream-ready")
         }
@@ -131,12 +133,20 @@ final class DesktopController {
     @objc func showSettings() {if let button=statusItem.button {onSettings?(button)}}
     @objc private func stopFromMenu() {stop()}
     @objc private func showControls() {pauseByUser();onReturn?()}
+    func setAngles(_ value:LidAngles) {
+        guard angles != value else{return}
+        angles=value;policy.invalidate()
+        let hadOverlay=overlay != nil
+        hideOverlay(restoreFocus:true)
+        if hadOverlay && !paused {capture.refresh()}
+        if armed && !paused {setStatus(readyMessage)}
+    }
     func update(angle:Double?,progress:Double,strength:Double,suspended:Bool) {
         guard armed else{return}
         if suspended {suspend();return}
         if capture.stalled {stop(message:"Capture stopped responding · Effect turned off");return}
         if paused {
-            if let angle,angle>=95 {paused=false;capture.refresh()}
+            if let angle,angle>=angles.ready {paused=false;capture.refresh()}
             return
         }
         // An invalid sensor must clear even a snapshot already fading out.
@@ -145,7 +155,7 @@ final class DesktopController {
             if overlay != nil {hideOverlay(restoreFocus:true);capture.refresh()}
             return
         }
-        let action=policy.update(angle:angle,progress:progress,strength:strength,frameReady:capture.hasFrame || overlay != nil)
+        let action=policy.update(angle:angle,progress:progress,strength:strength,frameReady:capture.hasFrame || overlay != nil,angles:angles)
         switch action {
         case .show:
             if let effect {

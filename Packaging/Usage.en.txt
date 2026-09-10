@@ -2,9 +2,9 @@ DuoFlip 0.8.0 (Preview)
 
 Installation: drag DuoFlip.app to Applications and open it. DuoFlip appears in the menu bar, without a Dock icon or main window. The interface supports English and Simplified Chinese and follows your system language preferences by default. In the popover, choose Language: System, English, or 简体中文. Changes apply immediately and persist after relaunch. Unsupported system languages fall back to English.
 
-Left-click the DuoFlip menu bar icon to open the settings popover. Turn on Lid effect. Automatic built-in display selection is enabled by default and requires macOS screen-recording permission on first use. Restart or reconfirm access if the system requests it. Alternatively, turn off Select built-in display automatically to use the system screen picker. Open the lid past 95 degrees, then gently close it to trigger the transition.
+Left-click the DuoFlip menu bar icon to open the settings popover. Turn on Lid effect. Automatic built-in display selection is enabled by default and requires macOS screen-recording permission on first use. Restart or reconfirm access if the system requests it. Alternatively, turn off Select built-in display automatically to use the system screen picker. Open the lid to at least 5 degrees above the trigger angle (95 degrees by default), then gently close it to trigger the transition.
 
-The small dot beside the menu bar icon indicates that the effect is enabled. Hover over the icon to see its name and status. Adjust effect strength in settings; the popover follows the system appearance.
+The small dot beside the menu bar icon indicates that the effect is enabled. Hover over the icon to see its name and status. Adjust effect strength and trigger angle in settings; the popover follows the system appearance. The trigger angle ranges from 75 to 125 degrees, defaults to 90, and is saved in whole degrees. After changing it, open the lid to the new ready angle before the next transition.
 
 Press Esc or turn off the effect switch to stop capture, release the desktop image, and stop angle sampling. DuoFlip stays in the menu bar. Esc is reserved as a global stop key only while the effect is enabled. Choose Quit DuoFlip to exit. Clicking outside the popover or clicking the icon again closes the popover without exiting the app.
 

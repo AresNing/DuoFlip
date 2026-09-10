@@ -54,5 +54,48 @@ import MetalKit
         gate.disable();precondition(gate.update(angle:60,progress:0.4,strength:1,frameReady:true) == .none)
         print("PASS: desktop gating, missing frame, reversal, restoration, stale sensor, disable")
         print("PASS: clamping, trigger range, hold, reversal, wake reset, invalid input, monotonic response")
+        precondition(LidAngles().start==90 && LidAngles(0).start==75 && LidAngles(180).start==125)
+        precondition(LidAngles(.nan).start==90 && LidAngles(.infinity).start==90 && LidAngles(100.6).start==101)
+        // Previously saved values must also fit the range exposed by settings.
+        precondition(LidAngles(135).start==125 && LidAngles(124.6).start==125)
+        precondition(LidAngles(-.infinity).start==90 && LidAngles(74.4).start==75)
+        for start in [75.0,90,110,125] {
+            let angles=LidAngles(start), motion=MotionState()
+            precondition(motion.progress(for:start,angles:angles)==0)
+            precondition(motion.progress(for:20,angles:angles)==1)
+            precondition(abs(motion.progress(for:(start+20)/2,angles:angles)-0.5)<0.00001)
+            var previous=1.0, policy=DesktopPolicy()
+            for angle in 0...180 {
+                let progress=motion.progress(for:Double(angle),angles:angles)
+                precondition((0...1).contains(progress) && progress<=previous);previous=progress
+            }
+            func update(_ angle:Double,frameReady:Bool=true)->DesktopPolicy.Action {
+                policy.update(angle:angle,progress:motion.progress(for:angle,angles:angles),strength:1,frameReady:frameReady,angles:angles)
+            }
+            policy.enable()
+            precondition(update(start-10) == .none && policy.needsOpen)
+            precondition(update(angles.ready-0.1) == .none && policy.needsOpen)
+            precondition(update(angles.ready) == .none && !policy.needsOpen)
+            precondition(update(angles.show) == .none)
+            precondition(update(start-3,frameReady:false) == .none)
+            precondition(update(start-3) == .show)
+            precondition(update(angles.hide-0.1) == .none && policy.visible)
+            precondition(update(angles.hide) == .hide)
+            precondition(update(start-3) == .show)
+            // Settings changes and sleep both invalidate the existing gesture.
+            policy.invalidate()
+            precondition(!policy.visible && policy.needsOpen)
+            precondition(update(start-3) == .none)
+            precondition(update(angles.ready) == .none)
+            precondition(update(start-3) == .show)
+        }
+        var changed=DesktopPolicy();changed.enable()
+        _=changed.update(angle:95,progress:0,strength:1,frameReady:true)
+        changed.invalidate()
+        precondition(changed.update(angle:100,progress:0.4,strength:1,frameReady:true,angles:LidAngles(125)) == .none)
+        precondition(changed.needsOpen)
+        _=changed.update(angle:130,progress:0,strength:1,frameReady:true,angles:LidAngles(125))
+        precondition(changed.update(angle:120,progress:0.01,strength:1,frameReady:true,angles:LidAngles(125)) == .show)
+        print("PASS: configurable 75–125° curves, default, normalization, hysteresis, missing frame, and rearming after changes/sleep")
     }
 }
