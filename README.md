@@ -12,11 +12,11 @@ The app supports English and Simplified Chinese, following your system’s prefe
 
 ## Demo
 
-[![DuoFlip lid transition: open, gently close, and reopen](docs/assets/duoflip-demo.gif)](https://github.com/AresNing/DuoFlip/raw/refs/heads/main/docs/assets/duoflip-demo.mp4)
+[![DuoFlip lid transition: open, gently close, and reopen](docs/assets/duoflip-demo.en.gif)](https://github.com/AresNing/DuoFlip/raw/refs/heads/main/docs/assets/duoflip-demo.en.mp4)
 
 As the lid closes, the desktop gradually blurs, narrows in perspective, and dims. Reopening restores clarity. The illustration preserves the MacBook Pro display proportions, with the simulated lid angle shown below.
 
-[Watch or download the high-resolution video · 12 seconds](https://github.com/AresNing/DuoFlip/raw/refs/heads/main/docs/assets/duoflip-demo.mp4)
+[Watch or download the high-resolution video · 12 seconds](https://github.com/AresNing/DuoFlip/raw/refs/heads/main/docs/assets/duoflip-demo.en.mp4)
 
 This demo uses the app's native rendering code, generated desktop artwork, and simulated angles. It is not a recording of a physical device. It contains no private desktop capture or original reference footage.
 

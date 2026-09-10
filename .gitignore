@@ -14,6 +14,7 @@ xcuserdata/
 *.mov
 *.mp4
 !docs/assets/duoflip-demo.mp4
+!docs/assets/duoflip-demo.en.mp4
 !docs/assets/duoflip-demo.zh-CN.mp4
 *.log
 .env

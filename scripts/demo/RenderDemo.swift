@@ -282,7 +282,7 @@ import UniformTypeIdentifiers
         let destination = URL(fileURLWithPath: CommandLine.arguments[1])
         let directory = URL(fileURLWithPath: ".build/demo/"+language)
         try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true)
-        let basename=language == "en" ? "duoflip-demo":"duoflip-demo.zh-CN"
+        let basename=language == "en" ? "duoflip-demo.en":"duoflip-demo.zh-CN"
         let videoURL = directory.appendingPathComponent(basename+".mp4")
         let gifURL = directory.appendingPathComponent(basename+".gif")
         for url in [videoURL, gifURL] where FileManager.default.fileExists(atPath: url.path) {
