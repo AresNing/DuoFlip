@@ -1,10 +1,14 @@
 # DuoFlip
 
+**简体中文** | [English](README.en.md)
+
 <img src="docs/assets/mark.svg" width="72" alt="DuoFlip 折叠双屏图标">
 
 随 MacBook 屏幕开合变化的桌面过渡效果。DuoFlip 读取翻盖角度，用当前桌面的内存快照呈现连续模糊、透视和明暗变化，并常驻 macOS 菜单栏。
 
 当前版本：**0.7.0 预览版**。原生 Swift / AppKit / SwiftUI / ScreenCaptureKit / Core Image / Metal，无第三方运行时依赖。
+
+本文档提供中英文版本；当前应用界面和演示视频中的文字为简体中文。
 
 ## 动效演示
 
