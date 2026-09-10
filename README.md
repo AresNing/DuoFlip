@@ -10,7 +10,7 @@
 
 [![DuoFlip 开合动效：正常展开、缓缓合拢、重新展开](docs/assets/duoflip-demo.gif)](https://github.com/AresNing/DuoFlip/raw/refs/heads/main/docs/assets/duoflip-demo.mp4)
 
-合拢时逐渐模糊、收拢透视并变暗，展开时恢复清晰。右侧示意屏幕角度变化。
+合拢时逐渐模糊、收拢透视并变暗，展开时恢复清晰。以 MacBook Pro 屏幕比例等比呈现，下方标注模拟开合角度。
 
 [观看或下载高清视频 · 12 秒](https://github.com/AresNing/DuoFlip/raw/refs/heads/main/docs/assets/duoflip-demo.mp4)
 

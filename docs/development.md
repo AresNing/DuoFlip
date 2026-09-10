@@ -41,7 +41,9 @@ open --env "LID_LAB_VALIDATION_DIR=$PWD/validation" .build/DuoFlip.app --args --
 
 `./scripts/generate-demo.sh` 使用生产的 `EffectRenderer`、`MotionState`、`EffectMotion` 和 `DesktopPolicy`，生成 12 秒的开合演示。脚本只绘制示例桌面、输入模拟角度，不访问传感器或 ScreenCaptureKit，不采集音频。需要本机 Metal。
 
-输出为 `docs/assets/duoflip-demo.mp4`（1280×800、H.264、30 fps）及 README 内循环播放的 `duoflip-demo.gif`（768×480、15 fps）。中间文件留在忽略的 `.build/demo/`。这是可复现的动效示意，不替代真实硬件及窗口生命周期验证。视频文件仅针对这一个自有素材加入 Git 忽略规则例外。
+输出为 `docs/assets/duoflip-demo.mp4`（1600×1200、H.264、30 fps）及 README 内循环播放的 `duoflip-demo.gif`（800×600、15 fps）。中间文件留在忽略的 `.build/demo/`。这是可复现的动效示意，不替代真实硬件及窗口生命周期验证。视频文件仅针对这一个自有素材加入 Git 忽略规则例外。
+
+视觉参考 [Apple MacBook Pro 产品展示](https://www.apple.com/macbook-pro/)，采用居中产品、浅色留白、柔和接触阴影和细金属边缘。屏幕依据 [14 英寸技术规格](https://www.apple.com/macbook-pro/specs/) 的 3024×1964 比例：生成桌面 1512×982，显示区域 1008×654⅔，横纵缩放均为 2/3，并在生成前断言比例一致。壁纸、窗口和机身均由代码绘制，不打包 Apple 官网图片；硬件外观为示意，不是精密三维模型。
 
 ### 应用安装包
 

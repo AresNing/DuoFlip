@@ -7,7 +7,10 @@ import UniformTypeIdentifiers
 // Documentation-only: generated artwork and simulated angles, using production
 // effect/policy code. No sensor, screen capture, audio, or network access.
 @main struct RenderDemo {
-    static let width = 1280, height = 800, fps = 30, count = 360
+    static let width = 1600, height = 1200, fps = 30, count = 360
+    // Exactly half the 14-inch MacBook Pro display resolution.
+    static let desktopWidth = 1512, desktopHeight = 982
+    static let screenRect = CGRect(x: 296, y: 270, width: 1008, height: 1964.0/3)
     static let ink = NSColor(calibratedWhite: 0.94, alpha: 1)
     static let muted = NSColor(calibratedWhite: 0.58, alpha: 1)
     static let accent = NSColor(calibratedRed: 0.5, green: 0.86, blue: 0.97, alpha: 1)
@@ -32,36 +35,150 @@ import UniformTypeIdentifiers
         NSGraphicsContext.restoreGraphicsState()
         return rep.cgImage!
     }
+    static func rgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat, _ a: CGFloat = 1) -> NSColor {
+        NSColor(calibratedRed: r, green: g, blue: b, alpha: a)
+    }
+    static func symbol(_ name: String, _ rect: CGRect, _ color: NSColor) {
+        guard let image = NSImage(systemSymbolName: name, accessibilityDescription: nil) else { return }
+        let config = NSImage.SymbolConfiguration(pointSize: rect.height, weight: .medium)
+            .applying(NSImage.SymbolConfiguration(paletteColors: [color]))
+        image.withSymbolConfiguration(config)?.draw(in: rect)
+    }
+    static func centerText(_ value: String, y: CGFloat, size: CGFloat, color: NSColor, weight: NSFont.Weight = .regular) {
+        let font = NSFont.systemFont(ofSize: size, weight: weight)
+        let measured = (value as NSString).size(withAttributes: [.font: font])
+        text(value, (CGFloat(width)-measured.width)/2, y, size, color, weight: weight)
+    }
+    static func border(_ rect: CGRect, radius: CGFloat, color: NSColor, line: CGFloat = 1) {
+        let path = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
+        path.lineWidth = line; color.setStroke(); path.stroke()
+    }
+    static func glass(_ rect: CGRect, fill: NSColor, radius: CGFloat = 25, shadow: Bool = true) {
+        NSGraphicsContext.saveGraphicsState()
+        if shadow {
+            let shade = NSShadow(); shade.shadowColor = .black.withAlphaComponent(0.17)
+            shade.shadowBlurRadius = 28; shade.shadowOffset = NSSize(width: 0, height: -10); shade.set()
+        }
+        box(rect, fill, radius: radius)
+        NSGraphicsContext.restoreGraphicsState()
+        border(rect.insetBy(dx: 0.5, dy: 0.5), radius: radius, color: .white.withAlphaComponent(0.48))
+    }
+    // Original vector wallpaper. No Apple photography, screenshots, or wallpaper assets.
+    static func wallpaper(_ rect: CGRect, warm: Bool = false) {
+        NSGraphicsContext.saveGraphicsState()
+        NSBezierPath(rect: rect).addClip()
+        let ctx = NSGraphicsContext.current!.cgContext
+        ctx.translateBy(x: rect.minX, y: rect.minY)
+        ctx.scaleBy(x: rect.width/1512, y: rect.height/982)
+        NSGradient(colors: warm ? [rgb(0.2,0.26,0.48),rgb(0.72,0.55,0.65),rgb(0.99,0.79,0.56)] :
+                    [rgb(0.055,0.09,0.29),rgb(0.2,0.35,0.75),rgb(0.52,0.82,0.91)])!
+            .draw(in: CGRect(x: 0,y: 0,width: 1512,height: 982), angle: 72)
+        let ribbon = NSBezierPath()
+        ribbon.move(to: CGPoint(x: -100,y: 600))
+        ribbon.curve(to: CGPoint(x: 1612,y: 1010),controlPoint1: CGPoint(x: 500,y: 160),controlPoint2: CGPoint(x: 810,y: 800))
+        ribbon.line(to: CGPoint(x: 1612,y: -100)); ribbon.line(to: CGPoint(x: -100,y: -100)); ribbon.close()
+        NSGradient(colors: warm ? [rgb(0.1,0.23,0.34),rgb(0.4,0.5,0.6)] :
+                    [rgb(0.19,0.1,0.52),rgb(0.31,0.36,0.82),rgb(0.55,0.85,0.96)])!.draw(in: ribbon,angle: 125)
+        let foreground = NSBezierPath()
+        foreground.move(to: CGPoint(x: -30,y: 0))
+        foreground.curve(to: CGPoint(x: 1550,y: 730),controlPoint1: CGPoint(x: 380,y: 820),controlPoint2: CGPoint(x: 1020,y: -350))
+        foreground.line(to: CGPoint(x: 1550,y: -30)); foreground.close()
+        NSGradient(colors: warm ? [rgb(0.10,0.2,0.29),rgb(0.25,0.4,0.44)] :
+                    [rgb(0.08,0.12,0.32),rgb(0.17,0.26,0.61),rgb(0.39,0.63,0.86)])!.draw(in: foreground,angle: 55)
+        NSGraphicsContext.restoreGraphicsState()
+    }
     static func desktop() -> CGImage {
-        bitmap(900, 562) {
-            NSGradient(colors: [NSColor(calibratedRed: 0.14, green: 0.24, blue: 0.36, alpha: 1),
-                                NSColor(calibratedRed: 0.44, green: 0.58, blue: 0.62, alpha: 1)])!
-                .draw(in: CGRect(x: 0, y: 0, width: 900, height: 562), angle: 35)
-            NSColor(calibratedRed: 0.61, green: 0.76, blue: 0.74, alpha: 0.3).setFill()
-            NSBezierPath(ovalIn: CGRect(x: 430, y: -150, width: 650, height: 650)).fill()
-            box(CGRect(x: 0, y: 534, width: 900, height: 28), NSColor(white: 0.05, alpha: 0.35), radius: 0)
-            text("DuoFlip     文件     编辑     视图", 20, 541, 12)
-            text("09:41", 843, 541, 12)
-            box(CGRect(x: 88, y: 99, width: 690, height: 373), NSColor(white: 0.94, alpha: 1), radius: 14)
-            box(CGRect(x: 88, y: 99, width: 160, height: 373), NSColor(calibratedRed: 0.85, green: 0.89, blue: 0.89, alpha: 1), radius: 14)
-            for (i, color) in [NSColor.systemRed, .systemYellow, .systemGreen].enumerated() {
-                color.setFill(); NSBezierPath(ovalIn: CGRect(x: 105+i*19, y: 446, width: 10, height: 10)).fill()
+        bitmap(desktopWidth, desktopHeight) {
+            wallpaper(CGRect(x: 0,y: 0,width: desktopWidth,height: desktopHeight))
+            box(CGRect(x: 0,y: 949,width: 1512,height: 33),.black.withAlphaComponent(0.16),radius: 0)
+            DuoFlipMark.draw(in: CGRect(x: 24,y: 958,width: 17,height: 17),color: .white)
+            text("笔记",59,957,15,.white,weight: .semibold)
+            text("文件     编辑     格式     显示     窗口     帮助",114,957,14,.white)
+            symbol("wifi",CGRect(x: 1283,y: 958,width: 20,height: 16),.white)
+            symbol("battery.100percent",CGRect(x: 1320,y: 956,width: 28,height: 18),.white)
+            text("周四  9:41",1370,957,14,.white)
+
+            // Two restrained translucent desktop widgets.
+            glass(CGRect(x: 62,y: 690,width: 282,height: 200),fill: rgb(0.19,0.36,0.63,0.70))
+            text("海岸",85,846,19,.white,weight: .medium)
+            text("21°",81,769,62,.white,weight: .light)
+            symbol("sun.max.fill",CGRect(x: 263,y: 792,width: 48,height: 48),rgb(1,0.88,0.52))
+            text("晴朗",85,740,15,.white)
+            text("最高 24°  最低 18°",85,712,14,.white.withAlphaComponent(0.78))
+            glass(CGRect(x: 62,y: 458,width: 282,height: 204),fill: .white.withAlphaComponent(0.85))
+            text("星期四",84,621,15,rgb(0.76,0.24,0.24),weight: .medium)
+            text("10",80,542,62,rgb(0.12,0.15,0.2),weight: .light)
+            text("留出一点时间",173,570,15,rgb(0.17,0.22,0.3),weight: .medium)
+            text("整理新的灵感",173,543,13,rgb(0.4,0.44,0.49))
+            box(CGRect(x: 85,y: 492,width: 237,height: 1),.black.withAlphaComponent(0.08),radius: 0)
+            text("今天，没有安排",85,469,13,rgb(0.43,0.47,0.52))
+
+            let window = CGRect(x: 398,y: 182,width: 1017,height: 649)
+            glass(window,fill: rgb(0.98,0.985,0.99,0.97),radius: 15)
+            NSGraphicsContext.saveGraphicsState()
+            NSBezierPath(roundedRect: window,xRadius: 15,yRadius: 15).addClip()
+            box(CGRect(x: 398,y: 182,width: 214,height: 649),rgb(0.88,0.91,0.95,0.9),radius: 0)
+            box(CGRect(x: 612,y: 776,width: 803,height: 55),rgb(0.96,0.97,0.985),radius: 0)
+            box(CGRect(x: 612,y: 182,width: 1,height: 649),.black.withAlphaComponent(0.08),radius: 0)
+            NSGraphicsContext.restoreGraphicsState()
+            for (i,c) in [rgb(1,0.38,0.36),rgb(1,0.75,0.28),rgb(0.26,0.79,0.38)].enumerated() {
+                c.setFill();NSBezierPath(ovalIn: CGRect(x: 420+i*23,y: 798,width: 13,height: 13)).fill()
             }
-            text("笔记", 110, 391, 16, .darkGray, weight: .semibold)
-            box(CGRect(x: 101, y: 348, width: 133, height: 32), NSColor(white: 1, alpha: 0.6), radius: 7)
-            text("今天的想法", 113, 356, 13, .darkGray)
-            text("灵感收藏", 113, 313, 13, .darkGray)
-            text("稍后阅读", 113, 271, 13, .darkGray)
-            text("留一点空间", 280, 363, 39, NSColor(white: 0.14, alpha: 1), weight: .semibold)
-            text("给下一个想法。", 280, 308, 39, NSColor(white: 0.14, alpha: 1), weight: .semibold)
-            text("打开思路，让灵感自然发生。", 282, 258, 18, .darkGray)
-            for (i, length) in [354, 306, 330].enumerated() {
-                box(CGRect(x: 283, y: 214-i*23, width: length, height: 6), NSColor(white: 0.76, alpha: 1), radius: 3)
+            symbol("sidebar.left",CGRect(x: 563,y: 796,width: 24,height: 18),.gray)
+            text("文件夹",423,750,13,rgb(0.43,0.47,0.52),weight: .semibold)
+            for (i,label) in ["所有笔记","旅途随记","灵感片段","最近删除"].enumerated() {
+                let y = CGFloat(700-i*49)
+                if i==1 {box(CGRect(x: 411,y: y-9,width: 187,height: 37),rgb(0.74,0.8,0.89),radius: 7)}
+                symbol(i==3 ? "trash" : "folder",CGRect(x: 425,y: y,width: 18,height: 17),rgb(0.34,0.40,0.49))
+                text(label,456,y,15,rgb(0.19,0.24,0.31))
             }
-            box(CGRect(x: 326, y: 22, width: 248, height: 54), NSColor(white: 1, alpha: 0.24), radius: 16)
-            for i in 0..<5 {
-                box(CGRect(x: 339+i*46, y: 32, width: 34, height: 34),
-                    [NSColor.systemTeal, .systemOrange, .systemBlue, .systemGreen, .systemIndigo][i], radius: 9)
+            symbol("square.and.pencil",CGRect(x: 637,y: 792,width: 24,height: 24),.gray)
+            text("旅途随记",688,794,17,rgb(0.29,0.33,0.38),weight: .medium)
+            for (i,name) in ["checklist","textformat","square.and.arrow.up","magnifyingglass"].enumerated() {
+                symbol(name,CGRect(x: 1201+i*48,y: 794,width: 21,height: 21),.gray)
+            }
+            text("9月10日  09:41",928,745,12,rgb(0.55,0.57,0.61))
+            text("山海之间",661,672,38,rgb(0.13,0.17,0.23),weight: .bold)
+            text("收集沿途的风景，也给新的想法留一点空白。",663,632,19,rgb(0.39,0.43,0.49))
+            NSGraphicsContext.saveGraphicsState()
+            NSBezierPath(roundedRect: CGRect(x: 663,y: 364,width: 694,height: 237),xRadius: 10,yRadius: 10).addClip()
+            wallpaper(CGRect(x: 663,y: 364,width: 694,height: 237),warm: true)
+            NSGraphicsContext.restoreGraphicsState()
+            text("下一次出发",663,312,19,rgb(0.2,0.24,0.3),weight: .semibold)
+            for (i,label) in ["挑一个晴天，沿着海岸散步","带上相机，记录光线的变化"].enumerated() {
+                let y=CGFloat(275-i*32)
+                symbol("circle",CGRect(x: 665,y: y,width: 16,height: 16),rgb(0.71,0.57,0.3))
+                text(label,691,y,16,rgb(0.42,0.46,0.52))
+            }
+            // Recognizable, individually detailed icons rather than flat color blocks.
+            let dock = CGRect(x: 403,y: 26,width: 706,height: 90)
+            glass(dock,fill: .white.withAlphaComponent(0.28),radius: 26)
+            let symbols=["face.smiling","safari","envelope.fill","calendar","note.text","photo.on.rectangle","music.note","gearshape.fill","trash"]
+            let colors=[rgb(0.19,0.62,0.96),rgb(0.11,0.56,0.91),rgb(0.13,0.58,0.94),rgb(0.96,0.28,0.3),rgb(0.94,0.72,0.2),rgb(0.53,0.44,0.86),rgb(0.92,0.24,0.4),rgb(0.47,0.52,0.6),rgb(0.70,0.76,0.81)]
+            for i in 0..<9 {
+                let x=CGFloat(420+i*76)
+                let icon=CGRect(x: x,y: 41,width: 60,height: 60)
+                let path=NSBezierPath(roundedRect: icon,xRadius: 14,yRadius: 14)
+                NSGradient(starting: colors[i].blended(withFraction: 0.28,of: .white)!,ending: colors[i])!.draw(in: path,angle: 90)
+                border(icon.insetBy(dx: 0.5,dy: 0.5),radius: 14,color: .white.withAlphaComponent(0.55))
+                if i == 0 {
+                    NSGraphicsContext.saveGraphicsState(); path.addClip()
+                    box(CGRect(x: x+30,y: 41,width: 30,height: 60),rgb(0.81,0.92,1),radius: 0)
+                    let face=rgb(0.09,0.28,0.49)
+                    box(CGRect(x: x+16,y: 75,width: 3,height: 7),face,radius: 1.5)
+                    box(CGRect(x: x+42,y: 75,width: 3,height: 7),face,radius: 1.5)
+                    let smile=NSBezierPath(); smile.lineWidth=1.8; face.setStroke()
+                    smile.move(to: CGPoint(x: x+14,y: 62))
+                    smile.curve(to: CGPoint(x: x+46,y: 62),controlPoint1: CGPoint(x: x+22,y: 52),controlPoint2: CGPoint(x: x+38,y: 52)); smile.stroke()
+                    NSGraphicsContext.restoreGraphicsState()
+                } else if i == 3 {
+                    box(icon.insetBy(dx: 2,dy: 2),.white,radius: 12)
+                    text("THU",x+15,79,10,rgb(0.86,0.18,0.22),weight: .bold)
+                    text("10",x+13,47,28,rgb(0.15,0.16,0.18),weight: .light)
+                } else {
+                    symbol(symbols[i],CGRect(x: x+12,y: 53,width: 36,height: 36),.white)
+                }
+                if [0,1,4].contains(i) {box(CGRect(x: x+28,y: 32,width: 4,height: 4),.white.withAlphaComponent(0.75),radius: 2)}
             }
         }
     }
@@ -75,32 +192,60 @@ import UniformTypeIdentifiers
     }
     static func frame(_ image: CGImage, angle: Double, t: Double) -> CGImage {
         bitmap(width, height) {
-            box(CGRect(x: 0, y: 0, width: width, height: height), NSColor(calibratedRed: 0.055, green: 0.07, blue: 0.09, alpha: 1), radius: 0)
-            DuoFlipMark.draw(in: CGRect(x: 52, y: 701, width: 44, height: 44), color: accent)
-            text("DuoFlip", 115, 701, 42, weight: .semibold)
-            text("随屏幕开合，自然过渡。", 55, 659, 23, muted)
-            box(CGRect(x: 39, y: 123, width: 926, height: 508), NSColor(white: 0.18, alpha: 1), radius: 18)
-            box(CGRect(x: 42, y: 126, width: 920, height: 502), .black, radius: 15)
-            NSGraphicsContext.current!.cgContext.draw(image, in: CGRect(x: 52, y: 137, width: 900, height: 480))
-            box(CGRect(x: 367, y: 607, width: 270, height: 12), .black, radius: 5)
-            box(CGRect(x: 23, y: 114, width: 958, height: 13), NSColor(white: 0.47, alpha: 1), radius: 6)
-            text("屏幕角度", 1026, 582, 18, muted)
-            text("\(Int(angle.rounded()))°", 1020, 499, 64, weight: .light)
-            let phase = t < 1.4 || t >= 10.2 ? "正常展开" : (t < 5.2 ? "缓缓合拢" : (t < 6.4 ? "保持角度" : "重新展开"))
-            text(phase, 1026, 455, 21, accent)
-            let hinge = CGPoint(x: 1072, y: 280)
-            let radians = angle * .pi / 180
-            let line = NSBezierPath(); line.lineWidth = 7; line.lineCapStyle = .round
-            muted.setStroke(); line.move(to: hinge); line.line(to: CGPoint(x: 1200, y: 280)); line.stroke()
-            let lid = NSBezierPath(); lid.lineWidth = 7; lid.lineCapStyle = .round
-            accent.setStroke(); lid.move(to: hinge)
-            lid.line(to: CGPoint(x: hinge.x+128*cos(radians), y: hinge.y+128*sin(radians))); lid.stroke()
-            text("模糊 · 透视 · 明暗", 1026, 191, 16, muted)
-            text("合拢时渐变，展开时还原", 55, 62, 20)
-            text("生成桌面 · 模拟角度 · 原生动效渲染", 804, 64, 15, muted)
+            let dark=rgb(0.10,0.11,0.13), secondary=rgb(0.48,0.49,0.52)
+            box(CGRect(x: 0,y: 0,width: width,height: height),rgb(0.965,0.967,0.976),radius: 0)
+            DuoFlipMark.draw(in: CGRect(x: 697,y: 1117,width: 27,height: 27),color: dark)
+            text("DuoFlip",737,1109,34,dark,weight: .semibold)
+            centerText("开合之间，自然流转。",y: 1032,size: 49,color: dark,weight: .semibold)
+
+            // Soft studio contact shadow, machined rim and front-on screen.
+            NSGraphicsContext.saveGraphicsState()
+            let shadow=NSShadow();shadow.shadowColor = .black.withAlphaComponent(0.23)
+            shadow.shadowBlurRadius=30;shadow.shadowOffset=NSSize(width: 0,height: -9);shadow.set()
+            box(CGRect(x: 265,y: 208,width: 1070,height: 20),rgb(0.25,0.26,0.28),radius: 13)
+            NSGraphicsContext.restoreGraphicsState()
+            let lid=CGRect(x: 283,y: 250,width: 1034,height: 688)
+            let lidPath=NSBezierPath(roundedRect: lid,xRadius: 22,yRadius: 22)
+            NSGradient(colors: [rgb(0.17,0.18,0.20),rgb(0.44,0.45,0.47),rgb(0.12,0.13,0.15)])!.draw(in: lidPath,angle: 22)
+            box(lid.insetBy(dx: 2,dy: 2),rgb(0.025,0.028,0.033),radius: 20)
+            border(lid.insetBy(dx: 1,dy: 1),radius: 21,color: .white.withAlphaComponent(0.19),line: 1)
+            NSGraphicsContext.saveGraphicsState()
+            NSBezierPath(roundedRect: screenRect,xRadius: 12,yRadius: 12).addClip()
+            NSGraphicsContext.current!.cgContext.draw(image,in: screenRect)
+            NSGraphicsContext.restoreGraphicsState()
+            // Notch is about 11% of screen width, not the previous 30%.
+            let notch=CGRect(x: 744,y: screenRect.maxY-19,width: 112,height: 20)
+            box(notch,rgb(0.025,0.028,0.033),radius: 6)
+            box(CGRect(x: 797.8,y: screenRect.maxY-10,width: 4.4,height: 4.4),rgb(0.13,0.17,0.22),radius: 2.2)
+            box(CGRect(x: 785,y: 254,width: 30,height: 2),.white.withAlphaComponent(0.04),radius: 1)
+
+            let deck=NSBezierPath()
+            deck.move(to: CGPoint(x: 283,y: 252));deck.line(to: CGPoint(x: 1317,y: 252))
+            deck.line(to: CGPoint(x: 1360,y: 214));deck.line(to: CGPoint(x: 240,y: 214));deck.close()
+            NSGradient(colors: [rgb(0.29,0.3,0.32),rgb(0.54,0.55,0.57),rgb(0.31,0.32,0.34)])!.draw(in: deck,angle: 90)
+            // Shallow keyboard/deck detail matches a nearly frontal product view.
+            for row in 0..<3 {
+                for column in 0..<14 {
+                    let keyX = CGFloat(420+column*54-row*2)
+                    let keyY = CGFloat(239-row*5)
+                    box(CGRect(x: keyX,y: keyY,width: 47,height: 3.5),rgb(0.08,0.09,0.10),radius: 1)
+                }
+            }
+            border(CGRect(x: 682,y: 216,width: 236,height: 11),radius: 3,color: .black.withAlphaComponent(0.16),line: 0.6)
+            let front=NSBezierPath(roundedRect: CGRect(x: 240,y: 201,width: 1120,height: 15),xRadius: 9,yRadius: 9)
+            NSGradient(colors: [rgb(0.18,0.19,0.21),rgb(0.52,0.53,0.55),rgb(0.34,0.35,0.37)])!.draw(in: front,angle: 90)
+            box(CGRect(x: 723,y: 208,width: 154,height: 7),rgb(0.26,0.27,0.29),radius: 4)
+            box(CGRect(x: 263,y: 215,width: 1074,height: 1),.white.withAlphaComponent(0.25),radius: 0)
+
+            let phase=t < 1.4 || t >= 10.2 ? "正常展开" : (t < 5.2 ? "缓缓合拢" : (t < 6.4 ? "保持角度" : "重新展开"))
+            centerText("\(phase)   ·   \(Int(angle.rounded()))°",y: 125,size: 23,color: secondary,weight: .medium)
+            centerText("生成桌面与模拟角度 · DuoFlip 原生动效渲染",y: 52,size: 16,color: secondary)
         }
     }
     static func main() throws {
+        precondition(abs(CGFloat(desktopWidth)/CGFloat(desktopHeight)-3024.0/1964)<0.000001)
+        precondition(abs(screenRect.width/screenRect.height-CGFloat(desktopWidth)/CGFloat(desktopHeight))<0.000001,
+                     "Desktop artwork must be displayed without stretching")
         let destination = URL(fileURLWithPath: CommandLine.arguments[1])
         let directory = URL(fileURLWithPath: ".build/demo")
         let videoURL = directory.appendingPathComponent("duoflip-demo.mp4")
@@ -114,7 +259,7 @@ import UniformTypeIdentifiers
         let writer = try AVAssetWriter(outputURL: videoURL, fileType: .mp4)
         let input = AVAssetWriterInput(mediaType: .video, outputSettings: [
             AVVideoCodecKey: AVVideoCodecType.h264, AVVideoWidthKey: width, AVVideoHeightKey: height,
-            AVVideoCompressionPropertiesKey: [AVVideoAverageBitRateKey: 3_000_000,
+            AVVideoCompressionPropertiesKey: [AVVideoAverageBitRateKey: 4_500_000,
                                              AVVideoMaxKeyFrameIntervalKey: fps,
                                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel]
         ])
@@ -139,7 +284,7 @@ import UniformTypeIdentifiers
                 _ = policy.update(angle: state.angle, progress: state.progress(), strength: 1, frameReady: true)
                 motion.target = policy.visible ? state.progress() : 0
                 motion.advance(1/60); motion.advance(1/60)
-                let rendered = renderer.image(size: CGSize(width: 900, height: 562), progress: motion.value, strength: 1, overrideSource: source)
+                let rendered = renderer.image(size: CGSize(width: desktopWidth, height: desktopHeight), progress: motion.value, strength: 1, overrideSource: source)
                 let screen = renderer.context.createCGImage(rendered, from: rendered.extent)!
                 let result = frame(screen, angle: physicalAngle, t: t)
                 var pixel: CVPixelBuffer?
@@ -153,9 +298,9 @@ import UniformTypeIdentifiers
                 CVPixelBufferUnlockBaseAddress(buffer, [])
                 guard adaptor.append(buffer, withPresentationTime: CMTime(value: Int64(i), timescale: Int32(fps))) else { throw writer.error! }
                 if i % 2 == 0 {
-                    let small = bitmap(768, 480) {
+                    let small = bitmap(800, 600) {
                         NSGraphicsContext.current!.imageInterpolation = .high
-                        NSGraphicsContext.current!.cgContext.draw(result, in: CGRect(x: 0, y: 0, width: 768, height: 480))
+                        NSGraphicsContext.current!.cgContext.draw(result, in: CGRect(x: 0, y: 0, width: 800, height: 600))
                     }
                     let delay = (i/2)%3 == 0 ? 0.06 : 0.07
                     CGImageDestinationAddImage(gif, small, [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: delay]] as CFDictionary)
@@ -177,6 +322,6 @@ import UniformTypeIdentifiers
             if FileManager.default.fileExists(atPath: target.path) { try FileManager.default.removeItem(at: target) }
             try FileManager.default.copyItem(at: source, to: target)
         }
-        print("Generated 12-second H.264 video (1280×800, 30 fps) and looping GIF (768×480, 15 fps); no audio or capture")
+        print("Generated 12-second H.264 video (1600×1200, 30 fps) and looping GIF (800×600, 15 fps); no audio or capture")
     }
 }
