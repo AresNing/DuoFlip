@@ -21,7 +21,7 @@ final class DesktopCapture:NSObject,SCContentSharingPickerObserver,SCStreamOutpu
     var automaticPermission:Bool {CGPreflightScreenCaptureAccess()}
     var onReady:(()->Void)?
     var onCancelled:(()->Void)?
-    var onFailure:((String)->Void)?
+    var onFailure:((LocalizedMessage)->Void)?
     var onEvent:((String)->Void)?
     var hasFrame:Bool {live && latest != nil}
     var stalled:Bool {live && ProcessInfo.processInfo.systemUptime-receivedAt>2.5}
@@ -49,7 +49,7 @@ final class DesktopCapture:NSObject,SCContentSharingPickerObserver,SCStreamOutpu
                 let content=try await SCShareableContent.excludingDesktopWindows(true,onScreenWindowsOnly:true)
                 guard let self,self.generation==token,self.selecting else{return}
                 guard let display=content.displays.first(where:{CGDisplayIsBuiltin($0.displayID) != 0}) else {
-                    self.stop();self.onFailure?("未找到内置屏幕，效果已关闭");return
+                    self.stop();self.onFailure?("Built-in display not found · Effect turned off");return
                 }
                 let own=content.applications.filter{$0.processID == ProcessInfo.processInfo.processIdentifier}
                 let filter=SCContentFilter(display:display,excludingApplications:own,exceptingWindows:[])
@@ -62,7 +62,7 @@ final class DesktopCapture:NSObject,SCContentSharingPickerObserver,SCStreamOutpu
                 guard let self,self.generation==token else{return}
                 let permission=CGPreflightScreenCaptureAccess()
                 self.stop()
-                self.onFailure?(permission ? "自动采集未能启动，效果已关闭" : "请在系统设置中允许 DuoFlip 屏幕录制，授权后重新开启")
+                self.onFailure?(permission ? "Automatic capture failed · Effect turned off" : "Allow screen recording for DuoFlip in System Settings, then turn on the effect again.")
             }
         }
     }
@@ -72,7 +72,7 @@ final class DesktopCapture:NSObject,SCContentSharingPickerObserver,SCStreamOutpu
             self.selecting=false
             guard #available(macOS 15.2,*),filter.style == .display,filter.includedDisplays.count == 1,
                   let display=filter.includedDisplays.first,CGDisplayIsBuiltin(display.displayID) != 0 else {
-                self.stop();self.onFailure?("请在系统选择器中选择 MacBook 的内置屏幕");return
+                self.stop();self.onFailure?("Choose your MacBook’s built-in display in the system picker.");return
             }
             self.filter=filter;self.displayID=display.displayID
             let scale=min(Double(filter.pointPixelScale),1920.0/max(1,filter.contentRect.width))
@@ -88,7 +88,7 @@ final class DesktopCapture:NSObject,SCContentSharingPickerObserver,SCStreamOutpu
         }
     }
     func contentSharingPickerStartDidFailWithError(_ error:Error) {
-        DispatchQueue.main.async { [weak self] in self?.stop();self?.onFailure?("系统屏幕选择器未能打开，请重试") }
+        DispatchQueue.main.async { [weak self] in self?.stop();self?.onFailure?("Could not open the screen picker. Try again.") }
     }
     func refresh() {
         guard let filter else{return}
@@ -104,7 +104,7 @@ final class DesktopCapture:NSObject,SCContentSharingPickerObserver,SCStreamOutpu
             config.minimumFrameInterval=CMTime(value:1,timescale:10)
             config.queueDepth=3;config.capturesAudio=false;config.showsCursor=false
             config.colorSpaceName=CGColorSpace.sRGB
-            config.streamName="DuoFlip 桌面效果（仅本机处理）"
+            config.streamName=L10n.text("DuoFlip desktop effect (processed locally)")
             if #available(macOS 15.0,*) {config.captureMicrophone=false}
             let created=SCStream(filter:filter,configuration:config,delegate:self)
             do {
@@ -115,7 +115,7 @@ final class DesktopCapture:NSObject,SCContentSharingPickerObserver,SCStreamOutpu
                 self.live=true;self.onReady?()
             } catch {
                 guard self.generation==token else{return}
-                self.stop();self.onFailure?("桌面采集未启动或被系统中断，效果已关闭")
+                self.stop();self.onFailure?("Capture failed or was interrupted · Effect turned off")
             }
         }
     }
@@ -139,7 +139,7 @@ final class DesktopCapture:NSObject,SCContentSharingPickerObserver,SCStreamOutpu
     func stream(_ stream:SCStream,didStopWithError error:Error) {
         DispatchQueue.main.async { [weak self] in
             guard let self,self.stream === stream else{return}
-            self.stop();self.onFailure?("屏幕采集被系统中断，效果已自动关闭")
+            self.stop();self.onFailure?("Screen capture interrupted · Effect turned off")
         }
     }
     func stream(_ stream:SCStream,didOutputSampleBuffer sampleBuffer:CMSampleBuffer,of outputType:SCStreamOutputType) {

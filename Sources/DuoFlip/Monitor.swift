@@ -7,7 +7,7 @@ final class SensorMonitor {
     private var connected=false
     private var retryAfter=0.0
     var onSample:((LidSample)->Void)?
-    var onError:((String)->Void)?
+    var onError:((LocalizedMessage)->Void)?
     func start() { queue.async { [self] in
         guard timer == nil else { return }
         connected=false; retryAfter=0
@@ -30,7 +30,7 @@ final class SensorMonitor {
             DispatchQueue.main.async { [weak self] in self?.onSample?(sample) }
         } catch {
             sensor.disconnect(); connected=false; retryAfter=now+1
-            let message=String(describing:error)
+            let message=(error as? LidError)?.message ?? LocalizedMessage(verbatim:String(describing:error))
             DispatchQueue.main.async { [weak self] in self?.onError?(message) }
         }
     }

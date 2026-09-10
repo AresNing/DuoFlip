@@ -1,12 +1,12 @@
-DuoFlip 0.7.0 (Preview)
+DuoFlip 0.8.0 (Preview)
 
-Installation: drag DuoFlip.app to Applications and open it. DuoFlip appears in the menu bar, without a Dock icon or main window. The app interface is currently in Simplified Chinese.
+Installation: drag DuoFlip.app to Applications and open it. DuoFlip appears in the menu bar, without a Dock icon or main window. The interface supports English and Simplified Chinese and follows your system language preferences by default. In the popover, choose Language: System, English, or 简体中文. Changes apply immediately and persist after relaunch. Unsupported system languages fall back to English.
 
-Left-click the DuoFlip menu bar icon to open the settings popover. Turn on Lid effect (开合效果). Automatic built-in display selection is enabled by default and requires macOS screen-recording permission on first use. Restart or reconfirm access if the system requests it. Alternatively, turn off Automatically select the built-in display (自动选择内置屏幕) to use the system screen picker. Open the lid past 95 degrees, then gently close it to trigger the transition.
+Left-click the DuoFlip menu bar icon to open the settings popover. Turn on Lid effect. Automatic built-in display selection is enabled by default and requires macOS screen-recording permission on first use. Restart or reconfirm access if the system requests it. Alternatively, turn off Select built-in display automatically to use the system screen picker. Open the lid past 95 degrees, then gently close it to trigger the transition.
 
 The small dot beside the menu bar icon indicates that the effect is enabled. Hover over the icon to see its name and status. Adjust effect strength in settings; the popover follows the system appearance.
 
-Press Esc or turn off the effect switch to stop capture, release the desktop image, and stop angle sampling. DuoFlip stays in the menu bar. Esc is reserved as a global stop key only while the effect is enabled. Choose Quit DuoFlip (退出 DuoFlip) to exit. Clicking outside the popover or clicking the icon again closes the popover without exiting the app.
+Press Esc or turn off the effect switch to stop capture, release the desktop image, and stop angle sampling. DuoFlip stays in the menu bar. Esc is reserved as a global stop key only while the effect is enabled. Choose Quit DuoFlip to exit. Clicking outside the popover or clicking the icon again closes the popover without exiting the app.
 
 While the effect is enabled, a system screen-capture session remains active. Images are processed only in local memory: no saved screenshots or video, no audio or microphone capture, and no uploads. Disabling the effect ends capture. Automatic selection works while permission is valid; manual mode requests a screen selection each time. Launch at login is not configured, and launching the app does not enable the effect.
 

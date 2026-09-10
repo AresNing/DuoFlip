@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0
+
+- Add English and Simplified Chinese, with system-language defaults and persistent live switching in the menu bar popover.
+- Localize settings, accessibility labels, capture status, meeting protection, and sensor errors.
+- Make the default README and demo English; retain a Chinese README with its own matching demo.
+- Add localization resolution, catalog parity, interpolation, and status re-rendering checks.
+
 ## 0.7.0
 
 - 在系统权限有效时自动选择内置屏幕，保留手动选屏方式。

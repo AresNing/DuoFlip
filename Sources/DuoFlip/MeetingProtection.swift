@@ -6,8 +6,8 @@ struct MeetingApp:Identifiable {
     let name:String
     let bundleIDs:[String]
     static let supported:[MeetingApp] = [
-        .init(id:"lark",name:"飞书 / Lark",bundleIDs:["com.electron.lark","com.bytedance.feishu"]),
-        .init(id:"tencent",name:"腾讯会议",bundleIDs:["com.tencent.meeting"]),
+        .init(id:"lark",name:"Feishu / Lark",bundleIDs:["com.electron.lark","com.bytedance.feishu"]),
+        .init(id:"tencent",name:"Tencent Meeting",bundleIDs:["com.tencent.meeting"]),
         .init(id:"zoom",name:"Zoom",bundleIDs:["us.zoom.xos"]),
         .init(id:"teams",name:"Microsoft Teams",bundleIDs:["com.microsoft.teams","com.microsoft.teams2"])
     ]

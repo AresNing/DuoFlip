@@ -9,12 +9,13 @@ struct LidSample {
 
 enum LidError: Error, CustomStringConvertible {
     case notFound, open(Int32), report(Int32), malformed
-    var description: String {
+    var description:String {message.rendered()}
+    var message:LocalizedMessage {
         switch self {
-        case .notFound: return "未找到翻盖角度传感器"
-        case .open(let code): return "传感器打开失败：\(code)"
-        case .report(let code): return "传感器读取失败：\(code)"
-        case .malformed: return "传感器返回了无效角度"
+        case .notFound: return "Lid-angle sensor not found"
+        case .open(let code): return "Could not open lid-angle sensor: \(code)"
+        case .report(let code): return "Could not read lid-angle sensor: \(code)"
+        case .malformed: return "Invalid lid-angle reading"
         }
     }
 }

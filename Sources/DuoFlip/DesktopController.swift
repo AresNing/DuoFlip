@@ -6,7 +6,7 @@ final class DesktopController {
     private let renderer:EffectRenderer
     private let metal:MTLDevice
     private let menuOnly:Bool
-    private var productName:String {menuOnly ? "DuoFlip":"翻盖"}
+    private var productName:String {"DuoFlip"}
     private let inactiveIcon=DuoFlipMark.menuImage(enabled:false)
     private let activeIcon=DuoFlipMark.menuImage(enabled:true)
     private var policy=DesktopPolicy()
@@ -19,12 +19,12 @@ final class DesktopController {
     private var restoring=false
     private var overlayStarted=0.0
     private let statusItem=NSStatusBar.system.statusItem(withLength:NSStatusItem.variableLength)
-    private var statusMenuLine=NSMenuItem(title:"桌面效果未启用",action:nil,keyEquivalent:"")
-    private let toggleItem=NSMenuItem(title:"启用桌面效果…",action:nil,keyEquivalent:"")
-    private let stopItem=NSMenuItem(title:"停止并结束共享",action:nil,keyEquivalent:"")
+    private var statusMenuLine=NSMenuItem(title:L10n.text("Effect is off"),action:nil,keyEquivalent:"")
+    private let toggleItem=NSMenuItem(title:L10n.text("Enable desktop effect…"),action:nil,keyEquivalent:"")
+    private let stopItem=NSMenuItem(title:L10n.text("Stop effect and capture"),action:nil,keyEquivalent:"")
     private(set) var shownCount=0
     private(set) var restoredCount=0
-    private(set) var status="桌面效果未启用"
+    private(set) var status:LocalizedMessage="Effect is off"
     var onReturn:(()->Void)?
     var automaticCapture=false
     var onEnable:(()->Void)?
@@ -45,7 +45,7 @@ final class DesktopController {
         "desktopCapturedFrames":capture.frameCount,"desktopHasFrame":capture.hasFrame,
         "desktopOverlayCount":shownCount,"desktopRestoreCount":restoredCount,
         "desktopCaptureWidth":Int(capture.dimensions.width),"desktopCaptureHeight":Int(capture.dimensions.height),
-        "desktopStatus":status]}
+        "desktopStatus":status.rendered()]}
     init(renderer:EffectRenderer,metal:MTLDevice,menuOnly:Bool=false) {
         self.renderer=renderer;self.metal=metal;self.menuOnly=menuOnly
         statusItem.button?.title=productName
@@ -55,37 +55,37 @@ final class DesktopController {
         toggleItem.target=self;toggleItem.action=#selector(toggleFromMenu);menu.addItem(toggleItem)
         if !menuOnly {
             stopItem.target=self;stopItem.action=#selector(stopFromMenu);menu.addItem(stopItem)
-            let controls=NSMenuItem(title:"打开控制窗口",action:#selector(showControls),keyEquivalent:"")
+            let controls=NSMenuItem(title:L10n.text("Open controls"),action:#selector(showControls),keyEquivalent:"")
             controls.target=self;menu.addItem(controls)
         } else {
-            let hint=NSMenuItem(title:"Esc 关闭效果 · 应用继续常驻",action:nil,keyEquivalent:"")
+            let hint=NSMenuItem(title:L10n.text("Esc stops the effect · DuoFlip stays open"),action:nil,keyEquivalent:"")
             hint.isEnabled=false;menu.addItem(hint)
-            let sharing=NSMenuItem(title:"开启时读取桌面，关闭即停止",action:nil,keyEquivalent:"")
+            let sharing=NSMenuItem(title:L10n.text("Capture runs only while the effect is on"),action:nil,keyEquivalent:"")
             sharing.isEnabled=false;menu.addItem(sharing)
         }
         menu.addItem(.separator())
-        menu.addItem(withTitle:menuOnly ? "退出应用":"退出翻盖动画验证",action:#selector(NSApplication.terminate(_:)),keyEquivalent:"")
+        menu.addItem(withTitle:L10n.text("Quit DuoFlip"),action:#selector(NSApplication.terminate(_:)),keyEquivalent:"")
         if menuOnly {
             statusItem.button?.target=self;statusItem.button?.action=#selector(showSettings)
             statusItem.button?.sendAction(on:[.leftMouseUp])
-            statusItem.button?.toolTip="DuoFlip · 单击打开设置"
-            statusItem.button?.setAccessibilityLabel("DuoFlip，单击打开设置")
+            statusItem.button?.toolTip=L10n.text("DuoFlip · Click to open settings")
+            statusItem.button?.setAccessibilityLabel(L10n.text("DuoFlip, click to open settings"))
         } else {statusItem.menu=menu}
         updateMenu()
         capture.onReady = {[weak self] in
             guard let self else{return}
             if !self.policy.armed {self.policy.enable()}
             self.paused=false;self.userPaused=false;self.starting=false
-            self.setStatus("已启用 · 打开至正常角度后合盖触发")
+            self.setStatus("Ready · Open the lid fully, then gently close it")
             if !self.menuOnly {NSApp.hide(nil)}
             self.onEvent?("desktop-stream-ready")
         }
-        capture.onCancelled = {[weak self] in self?.stop(message:"已取消桌面共享");self?.onReturn?()}
+        capture.onCancelled = {[weak self] in self?.stop(message:"Screen sharing cancelled");self?.onReturn?()}
         capture.onFailure = {[weak self] message in self?.stop(message:message);self?.onReturn?()}
         capture.onEvent = {[weak self] event in
             guard let self else{return}
             self.onEvent?(event)
-            if event == "desktop-content-unavailable" {self.stop(message:"桌面内容已暂停，旧画面已清除")}
+            if event == "desktop-content-unavailable" {self.stop(message:"Screen content paused · Previous image cleared")}
         }
     }
     private func updateMenu() {
@@ -93,33 +93,35 @@ final class DesktopController {
             statusItem.button?.title=""
             statusItem.button?.image=armed ? activeIcon:inactiveIcon
             statusItem.button?.imagePosition = .imageOnly
-            let state=armed ? "效果已开启":"效果已关闭"
-            statusItem.button?.toolTip="DuoFlip · "+state+" · 单击打开设置"
-            statusItem.button?.setAccessibilityLabel("DuoFlip，"+state+"，单击打开设置")
+            let state:LocalizedMessage=armed ? "Effect is on":"Effect is off"
+            let tooltip:LocalizedMessage="DuoFlip · \(state) · Click to open settings"
+            statusItem.button?.toolTip=tooltip.rendered()
+            statusItem.button?.setAccessibilityLabel(tooltip.rendered())
         } else {
-            statusItem.button?.title=armed ? productName+" · 开" : (userPaused ? productName+" · 暂停":productName)
+            statusItem.button?.title=armed ? productName+" · "+L10n.text("On") : (userPaused ? productName+" · "+L10n.text("Paused"):productName)
         }
-        toggleItem.title=menuOnly ? (armed || selecting || starting ? "关闭效果":"开启效果…") : (armed ? "暂停桌面效果" : (userPaused ? "恢复桌面效果":"启用桌面效果…"))
+        toggleItem.title=L10n.text(menuOnly ? (armed || selecting || starting ? "Turn off effect":"Enable effect…") : (armed ? "Pause desktop effect" : (userPaused ? "Resume desktop effect":"Enable desktop effect…")))
         toggleItem.isEnabled = menuOnly || (!selecting && !starting)
         stopItem.isEnabled=armed || userPaused || selecting || starting
         onActivityChanged?()
     }
-    private func setStatus(_ value:String) {status=value;statusMenuLine.title=value;updateMenu()}
+    private func setStatus(_ value:LocalizedMessage) {status=value;statusMenuLine.title=value.rendered();updateMenu()}
+    func refreshLocalization() {statusMenuLine.title=status.rendered();updateMenu()}
     func start() {
         if automaticCapture {
-            stop(message:"正在自动连接内置屏幕…")
+            stop(message:"Connecting to the built-in display…")
             capture.startAutomatic();updateMenu();return
         }
         if userPaused,capture.canResume {
-            userPaused=false;starting=true;setStatus("正在恢复桌面效果…");capture.refresh()
+            userPaused=false;starting=true;setStatus("Resuming desktop effect…");capture.refresh()
         } else {choose()}
     }
-    private func choose() {stop(message:"正在等待系统共享选择");capture.choose();updateMenu()}
+    private func choose() {stop(message:"Waiting for screen selection…");capture.choose();updateMenu()}
     func pauseByUser() {
         guard armed || starting else{return}
         policy.disable();paused=false;starting=false;userPaused=capture.canResume
         capture.pause();hideOverlay(restoreFocus:true)
-        setStatus("已暂停 · 菜单栏可恢复");onEvent?("desktop-user-paused")
+        setStatus("Paused · Resume from the menu bar");onEvent?("desktop-user-paused")
     }
     @objc private func toggleFromMenu() {
         if menuOnly,needsSensor {stop()}
@@ -132,7 +134,7 @@ final class DesktopController {
     func update(angle:Double?,progress:Double,strength:Double,suspended:Bool) {
         guard armed else{return}
         if suspended {suspend();return}
-        if capture.stalled {stop(message:"桌面采集无响应，效果已自动关闭");return}
+        if capture.stalled {stop(message:"Capture stopped responding · Effect turned off");return}
         if paused {
             if let angle,angle>=95 {paused=false;capture.refresh()}
             return
@@ -161,18 +163,18 @@ final class DesktopController {
             let style:NSWindow.StyleMask=menuOnly ? [.borderless,.nonactivatingPanel]:.borderless
             let window=ExperienceWindow(contentRect:screen.frame,styleMask:style,backing:.buffered,defer:false)
             window.hidesOnDeactivate=false
-            window.title=menuOnly ? "DuoFlip 桌面效果":"桌面翻盖效果";window.isReleasedWhenClosed=false;window.level = .floating
+            window.title=L10n.text("DuoFlip desktop effect");window.isReleasedWhenClosed=false;window.level = .floating
             window.collectionBehavior=[.canJoinAllSpaces,.fullScreenAuxiliary]
             window.animationBehavior = .none
             window.backgroundColor = .black
             let root=SnapshotEffectSurface(frame:NSRect(origin:.zero,size:screen.frame.size),snapshot:snapshot,renderer:renderer,device:metal)
             let view=root.effect
-            view.setAccessibilityLabel("随真实翻盖变化的桌面快照")
+            view.setAccessibilityLabel(L10n.text("Desktop snapshot responding to lid angle"))
             view.set(progress:progress,strength:strength)
             view.onRendered = {[weak self] ms in self?.onRendered?(ms)}
             view.onFirstPresented = {[weak self] in self?.onEvent?("desktop-first-frame-presented")}
             if !menuOnly {
-                let exit=NSButton(title:"停止桌面效果（Esc）",target:self,action:#selector(returnToWindow))
+                let exit=NSButton(title:L10n.text("Stop desktop effect (Esc)"),target:self,action:#selector(returnToWindow))
                 exit.bezelStyle = .rounded;exit.translatesAutoresizingMaskIntoConstraints=false;root.addSubview(exit)
                 NSLayoutConstraint.activate([exit.trailingAnchor.constraint(equalTo:root.trailingAnchor,constant:-25),exit.topAnchor.constraint(equalTo:root.topAnchor,constant:52)])
             }
@@ -180,18 +182,18 @@ final class DesktopController {
             overlay=window;effect=view;overlayStarted=ProcessInfo.processInfo.systemUptime
             if menuOnly {window.makeKeyAndOrderFront(nil)}
             else {NSApp.unhideWithoutActivation();window.makeKeyAndOrderFront(nil);NSApp.activate(ignoringOtherApps:true)}
-            shownCount+=1;setStatus("桌面过渡中 · Esc 停止")
+            shownCount+=1;setStatus("Transition active · Esc to stop")
             onEvent?("desktop-overlay-show")
             DispatchQueue.main.asyncAfter(deadline:.now()+1) { [weak self,weak view] in
                 guard let self,let view,self.effect === view,view.waitingForFirstFrame else{return}
-                self.stop(message:"画面尚未准备好，已恢复桌面，请重新启用");self.onReturn?()
+                self.stop(message:"Image not ready · Desktop restored. Turn on the effect again.");self.onReturn?()
             }
         case .hide:
             restoring=true
             effect?.onSettled = {[weak self] in
                 guard let self,self.restoring else{return}
                 self.hideOverlay(restoreFocus:true);self.capture.refresh()
-                self.setStatus("已恢复桌面 · 等待下次合盖")
+                self.setStatus("Desktop restored · Ready for the next close")
             }
             effect?.set(progress:0,strength:strength)
             // Request a final frame even if the target was already zero.
@@ -201,7 +203,7 @@ final class DesktopController {
         }
         // Keep the prototype recoverable if it is left partly closed for a long time.
         if overlay != nil,ProcessInfo.processInfo.systemUptime-overlayStarted > 45 {
-            stop(message:"本次体验已结束，桌面已恢复");onReturn?()
+            stop(message:"Session ended · Desktop restored");onReturn?()
         }
     }
     private func hideOverlay(restoreFocus:Bool) {
@@ -217,10 +219,10 @@ final class DesktopController {
     func suspend() {
         guard armed,!paused else{return}
         hideOverlay(restoreFocus:false);policy.invalidate();capture.pause();paused=true
-        setStatus("已暂停 · 展开至正常角度后恢复")
+        setStatus("Paused · Open the lid fully to resume")
         onEvent?("desktop-paused-cleared")
     }
-    func stop(message:String="桌面效果已停止") {
+    func stop(message:LocalizedMessage="Effect stopped") {
         policy.disable();paused=false;userPaused=false;starting=false;capture.stop();hideOverlay(restoreFocus:true);setStatus(message)
         onEvent?("desktop-stopped")
     }

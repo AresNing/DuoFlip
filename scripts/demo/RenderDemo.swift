@@ -7,6 +7,37 @@ import UniformTypeIdentifiers
 // Documentation-only: generated artwork and simulated angles, using production
 // effect/policy code. No sensor, screen capture, audio, or network access.
 @main struct RenderDemo {
+    static let language = CommandLine.arguments.count > 2 ? CommandLine.arguments[2] : "en"
+    static let english:[String:String] = [
+        "笔记":"Notes",
+        "文件     编辑     格式     显示     窗口     帮助":"File    Edit    Format    View    Window    Help",
+        "周四  9:41":"Thu  9:41",
+        "海岸":"Coast",
+        "晴朗":"Sunny",
+        "最高 24°  最低 18°":"H:24°  L:18°",
+        "星期四":"Thursday",
+        "留出一点时间":"Take a moment",
+        "整理新的灵感":"Find a little clarity",
+        "今天，没有安排":"No events today",
+        "文件夹":"Folders",
+        "所有笔记":"All Notes",
+        "旅途随记":"Travel Notes",
+        "灵感片段":"Ideas",
+        "最近删除":"Recently Deleted",
+        "9月10日  09:41":"September 10  09:41",
+        "山海之间":"Where land meets sea",
+        "收集沿途的风景，也给新的想法留一点空白。":"Collect a few moments. Leave room for new ideas.",
+        "下一次出发":"The next adventure",
+        "挑一个晴天，沿着海岸散步":"Pick a sunny day for a walk along the coast",
+        "带上相机，记录光线的变化":"Bring a camera. Follow the changing light.",
+        "开合之间，自然流转。":"A natural transition.",
+        "正常展开":"Fully open",
+        "缓缓合拢":"Gently closing",
+        "保持角度":"Holding",
+        "重新展开":"Opening again",
+        "生成桌面与模拟角度 · DuoFlip 原生动效渲染":"Illustrated desktop. Simulated angles. Native DuoFlip rendering."
+    ]
+    static func localized(_ text:String)->String {language == "en" ? (english[text] ?? text):text}
     static let width = 1600, height = 1200, fps = 30, count = 360
     // Exactly half the 14-inch MacBook Pro display resolution.
     static let desktopWidth = 1512, desktopHeight = 982
@@ -17,7 +48,7 @@ import UniformTypeIdentifiers
 
     static func text(_ value: String, _ x: CGFloat, _ y: CGFloat, _ size: CGFloat,
                      _ color: NSColor = ink, weight: NSFont.Weight = .regular) {
-        (value as NSString).draw(at: NSPoint(x: x, y: y), withAttributes: [
+        (localized(value) as NSString).draw(at: NSPoint(x: x, y: y), withAttributes: [
             .font: NSFont.systemFont(ofSize: size, weight: weight), .foregroundColor: color
         ])
     }
@@ -45,6 +76,7 @@ import UniformTypeIdentifiers
         image.withSymbolConfiguration(config)?.draw(in: rect)
     }
     static func centerText(_ value: String, y: CGFloat, size: CGFloat, color: NSColor, weight: NSFont.Weight = .regular) {
+        let value=localized(value)
         let font = NSFont.systemFont(ofSize: size, weight: weight)
         let measured = (value as NSString).size(withAttributes: [.font: font])
         text(value, (CGFloat(width)-measured.width)/2, y, size, color, weight: weight)
@@ -238,7 +270,7 @@ import UniformTypeIdentifiers
             box(CGRect(x: 263,y: 215,width: 1074,height: 1),.white.withAlphaComponent(0.25),radius: 0)
 
             let phase=t < 1.4 || t >= 10.2 ? "正常展开" : (t < 5.2 ? "缓缓合拢" : (t < 6.4 ? "保持角度" : "重新展开"))
-            centerText("\(phase)   ·   \(Int(angle.rounded()))°",y: 125,size: 23,color: secondary,weight: .medium)
+            centerText("\(localized(phase))   ·   \(Int(angle.rounded()))°",y: 125,size: 23,color: secondary,weight: .medium)
             centerText("生成桌面与模拟角度 · DuoFlip 原生动效渲染",y: 52,size: 16,color: secondary)
         }
     }
@@ -246,10 +278,13 @@ import UniformTypeIdentifiers
         precondition(abs(CGFloat(desktopWidth)/CGFloat(desktopHeight)-3024.0/1964)<0.000001)
         precondition(abs(screenRect.width/screenRect.height-CGFloat(desktopWidth)/CGFloat(desktopHeight))<0.000001,
                      "Desktop artwork must be displayed without stretching")
+        precondition(["en","zh-Hans"].contains(language),"Language must be en or zh-Hans")
         let destination = URL(fileURLWithPath: CommandLine.arguments[1])
-        let directory = URL(fileURLWithPath: ".build/demo")
-        let videoURL = directory.appendingPathComponent("duoflip-demo.mp4")
-        let gifURL = directory.appendingPathComponent("duoflip-demo.gif")
+        let directory = URL(fileURLWithPath: ".build/demo/"+language)
+        try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true)
+        let basename=language == "en" ? "duoflip-demo":"duoflip-demo.zh-CN"
+        let videoURL = directory.appendingPathComponent(basename+".mp4")
+        let gifURL = directory.appendingPathComponent(basename+".gif")
         for url in [videoURL, gifURL] where FileManager.default.fileExists(atPath: url.path) {
             try FileManager.default.removeItem(at: url)
         }
@@ -306,7 +341,7 @@ import UniformTypeIdentifiers
                     CGImageDestinationAddImage(gif, small, [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: delay]] as CFDictionary)
                 }
                 if [0, 90, 165, 240, 359].contains(i) {
-                    let url = URL(fileURLWithPath: ".build/demo/frame-\(i).png")
+                    let url = directory.appendingPathComponent("frame-\(i).png")
                     let output = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil)!
                     CGImageDestinationAddImage(output, result, nil); precondition(CGImageDestinationFinalize(output))
                 }

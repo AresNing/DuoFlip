@@ -44,10 +44,11 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
             UserDefaults.standard.set(self.settings.meetingAvoidance,forKey:"meetingAvoidance")
             UserDefaults.standard.set(Array(self.settings.meetingApps).sorted(),forKey:"meetingApps")
             if self.desktop.needsSensor,self.desktop.automaticCapture != self.settings.automaticCapture {
-                self.desktop.stop(message:"采集方式已更改，请重新开启效果")
+                self.desktop.stop(message:"Capture mode changed · Turn on the effect again")
             }
             self.checkMeetingProtection()
         }
+        settings.onLanguageChanged = {[weak self] in self?.desktop.refreshLocalization()}
         settings.onStrength = {[weak self] value in
             guard let self else{return}
             self.settings.strength=value
@@ -59,7 +60,7 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
         desktop.onEvent = {[weak self] event in self?.log?.event(event)}
         shortcut.onEscape = {[weak self] in
             self?.settingsPopover.close()
-            self?.desktop.stop(message:"效果已关闭 · 单击图标可重新开启")
+            self?.desktop.stop(message:"Effect is off · Click the icon to enable it again")
         }
         monitor.onSample = {[weak self] sample in
             guard let self,self.monitoring,!self.sleeping else{return}
@@ -69,9 +70,13 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
         }
         monitor.onError = {[weak self] message in
             guard let self,self.monitoring else{return}
-            self.desktop.stop(message:message+" · 效果已关闭")
-            self.log?.event("error: "+message)
+            self.desktop.stop(message:"\(message) · Effect is off")
+            self.log?.event("error: "+message.rendered())
         }
+        observers.append(NotificationCenter.default.addObserver(forName:NSLocale.currentLocaleDidChangeNotification,object:nil,queue:.main) {[weak self] _ in
+            guard let self,self.settings.language == .system else{return}
+            self.settings.objectWillChange.send();self.desktop.refreshLocalization()
+        })
         checkMeetingProtection()
         let center=NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.didLaunchApplicationNotification,NSWorkspace.didTerminateApplicationNotification] {
@@ -107,14 +112,14 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
         lastMeetingCheck=ProcessInfo.processInfo.systemUptime
         settings.meetingBlocker=MeetingProtection.blocker(enabled:settings.meetingAvoidance,selected:settings.meetingApps,runningBundleIDs:NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
         if let blocker=settings.meetingBlocker,desktop.needsSensor {
-            desktop.stop(message:blocker+" 正在运行，已自动关闭效果")
+            desktop.stop(message:"\(LocalizedMessage(key:blocker)) is running · Effect turned off")
             log?.event("meeting-protection-stopped-effect")
         }
     }
     private func startEffect() {
         checkMeetingProtection()
         if let blocker=settings.meetingBlocker {
-            desktop.stop(message:blocker+" 正在运行，已避让；可在下方调整会议避让设置")
+            desktop.stop(message:"\(LocalizedMessage(key:blocker)) is running · Adjust meeting protection below to enable the effect")
             return
         }
         settingsPopover.close()
@@ -132,7 +137,7 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
         // If Esc cannot be registered, do not leave an effect enabled without its
         // promised global stop control; the settings entry stays available.
         if !shortcut.setEnabled(desktop.needsSensor && !sleeping) {
-            desktop.stop(message:"Esc 被其他程序占用 · 效果未开启")
+            desktop.stop(message:"Esc is in use by another app · Effect stays off")
         }
     }
     private func update() {
@@ -146,7 +151,7 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
     func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows:Bool)->Bool {desktop.showSettings();return false}
     func applicationWillTerminate(_ notification:Notification) {
         desktop?.terminate();shortcut.setEnabled(false);monitor.stop();timer?.invalidate()
-        for observer in observers {NSWorkspace.shared.notificationCenter.removeObserver(observer)}
+        for observer in observers {NSWorkspace.shared.notificationCenter.removeObserver(observer);NotificationCenter.default.removeObserver(observer)}
         log?.event("quit");flush();log?.finish()
     }
 }

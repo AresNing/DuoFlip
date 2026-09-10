@@ -104,7 +104,7 @@ final class EffectView: MTKView, MTKViewDelegate {
         clearColor=MTLClearColorMake(0,0,0,1)
         delegate=self
         setAccessibilityElement(true)
-        setAccessibilityLabel("随翻盖角度变化的测试画面")
+        setAccessibilityLabel(L10n.text("Test image responding to lid angle"))
     }
     required init(coder:NSCoder) { fatalError("not used") }
     // Keep the snapshot underneath visible until the drawable is presented, not

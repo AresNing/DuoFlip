@@ -18,6 +18,7 @@ for size in 16 32 128 256 512; do
     sips -z "$double" "$double" "$stage/brand/AppIcon.png" --out "$stage/AppIcon.iconset/icon_${size}x${size}@2x.png" >/dev/null
 done
 iconutil -c icns "$stage/AppIcon.iconset" -o "$app/Contents/Resources/AppIcon.icns"
+cp -R Resources/*.lproj "$app/Contents/Resources/"
 cp Packaging/Info.plist "$app/Contents/Info.plist"
 cp ThirdParty/LidAngleSensor/LICENSE "$app/Contents/Resources/LidAngleSensor-LICENSE.txt"
 cp THIRD_PARTY_NOTICES.md "$app/Contents/Resources/THIRD_PARTY_NOTICES.md"
