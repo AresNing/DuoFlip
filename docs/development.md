@@ -37,6 +37,14 @@ open --env "LID_LAB_VALIDATION_DIR=$PWD/validation" .build/DuoFlip.app --args --
 
 ## 打包与发布
 
+### README 演示素材
+
+`./scripts/generate-demo.sh` 使用生产的 `EffectRenderer`、`MotionState`、`EffectMotion` 和 `DesktopPolicy`，生成 12 秒的开合演示。脚本只绘制示例桌面、输入模拟角度，不访问传感器或 ScreenCaptureKit，不采集音频。需要本机 Metal。
+
+输出为 `docs/assets/duoflip-demo.mp4`（1280×800、H.264、30 fps）及 README 内循环播放的 `duoflip-demo.gif`（768×480、15 fps）。中间文件留在忽略的 `.build/demo/`。这是可复现的动效示意，不替代真实硬件及窗口生命周期验证。视频文件仅针对这一个自有素材加入 Git 忽略规则例外。
+
+### 应用安装包
+
 `scripts/package.sh` 默认只在本地生成预览包，不上传。应用内包含第三方许可，DMG 和 ZIP 不含源码、原参考媒体或诊断记录。
 
 如需 Developer ID 签名，设置 `LID_SIGNING_IDENTITY` 为钥匙串中已有的签名身份。只有同时显式设置 `LID_NOTARY_PROFILE` 时，脚本才会向 Apple 提交公证并装订票据。不要把证书、密钥或凭据放入仓库。参见 [Apple Developer ID](https://developer.apple.com/developer-id/)。

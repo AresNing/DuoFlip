@@ -13,6 +13,7 @@ xcuserdata/
 *.zip
 *.mov
 *.mp4
+!docs/assets/duoflip-demo.mp4
 *.log
 .env
 .env.*

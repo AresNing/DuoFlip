@@ -6,6 +6,16 @@
 
 当前版本：**0.7.0 预览版**。原生 Swift / AppKit / SwiftUI / ScreenCaptureKit / Core Image / Metal，无第三方运行时依赖。
 
+## 动效演示
+
+[![DuoFlip 开合动效：正常展开、缓缓合拢、重新展开](docs/assets/duoflip-demo.gif)](https://github.com/AresNing/DuoFlip/raw/refs/heads/main/docs/assets/duoflip-demo.mp4)
+
+合拢时逐渐模糊、收拢透视并变暗，展开时恢复清晰。右侧示意屏幕角度变化。
+
+[观看或下载高清视频 · 12 秒](https://github.com/AresNing/DuoFlip/raw/refs/heads/main/docs/assets/duoflip-demo.mp4)
+
+演示使用应用现有的原生渲染代码、生成的示例桌面和模拟角度，不是真机录屏。没有采集私人桌面，也不包含原始参考视频。
+
 ## 使用
 
 1. 打开 DuoFlip，左键单击菜单栏图标展开设置浮层。
