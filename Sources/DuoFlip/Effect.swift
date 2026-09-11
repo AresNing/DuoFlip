@@ -39,9 +39,27 @@ struct EffectMotion {
     private(set) var value = 0.0
     private var intermediate = 0.0
     var target = 0.0
-    var settled: Bool { abs(value-target)<0.00001 && abs(intermediate-target)<0.00001 }
+    private var restoreStart:Double?
+    private var restoreElapsed=0.0
+    private let restoreDuration=1.0
+    var restoring:Bool {restoreStart != nil}
+    var settled: Bool { !restoring && abs(value-target)<0.00001 && abs(intermediate-target)<0.00001 }
+    mutating func restore() {
+        restoreStart=value;restoreElapsed=0;target=0
+    }
+    mutating func follow(_ next:Double) {
+        if restoring {restoreStart=nil;intermediate=value}
+        target=next
+    }
     mutating func advance(_ dt:Double) {
         guard dt.isFinite,dt>0 else{return}
+        if let start=restoreStart {
+            restoreElapsed+=dt
+            let t=min(1,restoreElapsed/restoreDuration)
+            value=start*(1-t*t*(3-2*t));intermediate=value
+            if t>=1 {value=0;intermediate=0;restoreStart=nil}
+            return
+        }
         let t=min(dt,0.05), omega=80.0, decay=exp(-omega*t)
         let previous=intermediate
         intermediate=target+(previous-target)*decay
@@ -130,11 +148,17 @@ final class EffectView: MTKView, MTKViewDelegate {
     }
     func set(progress:Double,strength:Double) {
         let target=min(1,max(0,progress*strength))
-        guard target != motion.target else { return }
-        motion.target=target;revision+=1
+        guard target != motion.target || motion.restoring else { return }
+        motion.follow(target);revision+=1
         if waitingForFirstFrame {return}
         if isPaused {lastFrame=ProcessInfo.processInfo.systemUptime}
         isPaused=false
+    }
+    func restore() {
+        motion.restore();revision+=1
+        lastFrame=ProcessInfo.processInfo.systemUptime
+        if !waitingForFirstFrame {isPaused=false}
+        needsDisplay=true
     }
     func stopAnimating() {
         presentationGeneration+=1;waitingForFirstFrame=false

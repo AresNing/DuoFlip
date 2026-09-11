@@ -151,7 +151,7 @@ final class MenuBarDelegate:NSObject,NSApplicationDelegate {
         }
     }
     private func update() {
-        desktop.update(angle:lastSample == nil ? nil:motion.angle,progress:motion.progress(angles:desktop.angles),strength:settings.strength,suspended:sleeping)
+        desktop.update(angle:lastSample == nil ? nil:motion.angle,progress:motion.progress(angles:desktop.angles),strength:settings.strength,suspended:sleeping,sample:lastSample)
     }
     private func flush() {
         var state=desktop.metrics

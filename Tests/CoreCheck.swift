@@ -97,5 +97,67 @@ import MetalKit
         _=changed.update(angle:130,progress:0,strength:1,frameReady:true,angles:LidAngles(125))
         precondition(changed.update(angle:120,progress:0.01,strength:1,frameReady:true,angles:LidAngles(125)) == .show)
         print("PASS: configurable 75–125° curves, default, normalization, hysteresis, missing frame, and rearming after changes/sleep")
+        func sample(_ policy:inout DesktopPolicy,_ angle:Double,_ time:Double,ready:Bool=true)->DesktopPolicy.Action {
+            policy.update(angle:angle,progress:MotionState().progress(for:angle),strength:1,frameReady:ready,sampleTime:time,sampleAngle:angle)
+        }
+        func holding()->DesktopPolicy {
+            var policy=DesktopPolicy();policy.enable()
+            precondition(sample(&policy,120,0) == .none)
+            precondition(sample(&policy,60,1) == .show)
+            return policy
+        }
+        var hold=holding()
+        for tick in 1..<45 {
+            precondition(sample(&hold,tick % 2 == 0 ? 60:61,1+Double(tick)/30) == .none)
+        }
+        precondition(sample(&hold,60,2.5) == .restore)
+        for tick in 1...90 {precondition(sample(&hold,60,2.5+Double(tick)/30) == .none)}
+        precondition(sample(&hold,59,5.6) == .none)
+        precondition(sample(&hold,58,5.7,ready:false) == .none)
+        precondition(sample(&hold,58,5.8) == .show)
+        // A new hold can restore again, including while the first return was interrupted.
+        for tick in 1..<45 {precondition(sample(&hold,58,5.8+Double(tick)/30) == .none)}
+        precondition(sample(&hold,58,7.31) == .restore)
+        precondition(sample(&hold,56,7.4) == .show)
+        var slow=holding()
+        for tick in 1...90 {
+            precondition(sample(&slow,60-Double(tick/15),1+Double(tick)/30) == .none)
+        }
+        var stale=holding()
+        for _ in 0..<100 {precondition(sample(&stale,60,1) == .none)}
+        precondition(sample(&stale,60,3) == .none)
+        for tick in 1..<45 {precondition(sample(&stale,60,3+Double(tick)/30) == .none)}
+        precondition(sample(&stale,60,4.5) == .restore)
+        stale.invalidate()
+        precondition(sample(&stale,58,4.6) == .none && stale.needsOpen)
+        precondition(sample(&stale,120,4.7) == .none)
+        precondition(sample(&stale,60,4.8) == .show)
+        precondition(stale.update(angle:nil,progress:0,strength:1,frameReady:true) == .hide)
+        precondition(sample(&stale,58,5) == .none && stale.needsOpen)
+        print("PASS: 1.5s hold, integer jitter, slow closing, duplicate/missing samples, resumed closing, missing frame, repeated hold, invalidation")
+        for fps in [30.0,60,120] {
+            var timed=EffectMotion();timed.follow(0.8)
+            for _ in 0..<120 {timed.advance(1/fps)}
+            let initial=timed.value
+            timed.restore()
+            var previous=initial
+            for _ in 0..<Int(fps)-1 {
+                timed.advance(1/fps)
+                precondition(timed.value<=previous && timed.value>0 && !timed.settled)
+                previous=timed.value
+            }
+            timed.advance(1/fps+0.000001)
+            precondition(timed.value==0 && timed.settled)
+            timed.follow(0.8)
+            for _ in 0..<120 {timed.advance(1/fps)}
+            timed.restore();timed.advance(0.5)
+            precondition(abs(timed.value-0.4)<0.00001)
+            let interrupted=timed.value
+            timed.follow(0.9)
+            precondition(timed.value==interrupted && !timed.restoring)
+            timed.advance(1/fps)
+            precondition(timed.value>interrupted && timed.value<0.9)
+        }
+        print("PASS: one-second monotonic reverse at 30/60/120 Hz, midpoint, and continuous interruption")
     }
 }
