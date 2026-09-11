@@ -42,7 +42,18 @@ final class Check {
             precondition(!surface.effect.waitingForFirstFrame && surface.effect.layer?.opacity==1)
             self.presented+=1
             print("PASS: scenario \(self.scenario), snapshot covered delayed drawable; presented in \(Int((ProcessInfo.processInfo.systemUptime-self.start)*1000)) ms")
-            DispatchQueue.main.asyncAfter(deadline:.now()+0.2) {self.finishScenario()}
+            DispatchQueue.main.asyncAfter(deadline:.now()+0.2) {
+                if self.scenario==1 {
+                    let began=ProcessInfo.processInfo.systemUptime
+                    surface.effect.onSettled = {
+                        let elapsed=ProcessInfo.processInfo.systemUptime-began
+                        precondition(elapsed>=0.98 && elapsed<2,"Timed restore must complete after one second")
+                        print("PASS: native timed restore completed in \(Int(elapsed*1000)) ms")
+                        self.finishScenario()
+                    }
+                    surface.effect.restore()
+                } else {self.finishScenario()}
+            }
         }
         DispatchQueue.main.asyncAfter(deadline:.now()+0.25) { [self] in
             precondition(surface.effect.waitingForFirstFrame && surface.effect.layer?.opacity==0)

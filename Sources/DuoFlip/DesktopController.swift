@@ -141,7 +141,7 @@ final class DesktopController {
         if hadOverlay && !paused {capture.refresh()}
         if armed && !paused {setStatus(readyMessage)}
     }
-    func update(angle:Double?,progress:Double,strength:Double,suspended:Bool) {
+    func update(angle:Double?,progress:Double,strength:Double,suspended:Bool,sample:LidSample?=nil) {
         guard armed else{return}
         if suspended {suspend();return}
         if capture.stalled {stop(message:"Capture stopped responding · Effect turned off");return}
@@ -155,7 +155,7 @@ final class DesktopController {
             if overlay != nil {hideOverlay(restoreFocus:true);capture.refresh()}
             return
         }
-        let action=policy.update(angle:angle,progress:progress,strength:strength,frameReady:capture.hasFrame || overlay != nil,angles:angles)
+        let action=policy.update(angle:angle,progress:progress,strength:strength,frameReady:capture.hasFrame || overlay != nil,angles:angles,sampleTime:sample?.timestamp,sampleAngle:sample?.angle)
         switch action {
         case .show:
             if let effect {
@@ -198,14 +198,17 @@ final class DesktopController {
                 guard let self,let view,self.effect === view,view.waitingForFirstFrame else{return}
                 self.stop(message:"Image not ready · Desktop restored. Turn on the effect again.");self.onReturn?()
             }
-        case .hide:
+        case .hide,.restore:
             restoring=true
             effect?.onSettled = {[weak self] in
                 guard let self,self.restoring else{return}
                 self.hideOverlay(restoreFocus:true);self.capture.refresh()
                 self.setStatus("Desktop restored · Ready for the next close")
             }
-            effect?.set(progress:0,strength:strength)
+            if action == .restore {
+                effect?.restore()
+                onEvent?("desktop-hold-restore")
+            } else {effect?.set(progress:0,strength:strength)}
             // Request a final frame even if the target was already zero.
             effect?.needsDisplay=true
         case .none:
