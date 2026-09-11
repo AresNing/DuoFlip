@@ -43,7 +43,7 @@
 "Open controls" = "打开控制窗口";
 "Pause desktop effect" = "暂停桌面效果";
 "Paused" = "暂停";
-"Paused · Open the lid fully to resume" = "已暂停 · 展开至正常角度后恢复";
+"Paused · Open the lid fully to resume" = "已暂停 · 完全打开屏幕以恢复";
 "Paused · Resume from the menu bar" = "已暂停 · 菜单栏可恢复";
 "Quit DuoFlip" = "退出 DuoFlip";
 "Ready · Open the lid fully, then gently close it" = "已启用 · 打开至正常角度后合盖触发";
@@ -66,3 +66,5 @@
 "Transition active · Esc to stop" = "桌面过渡中 · Esc 停止";
 "Turn off effect" = "关闭效果";
 "Waiting for screen selection…" = "正在等待系统共享选择";
+"Trigger angle" = "触发角度";
+"Ready" = "已就绪";

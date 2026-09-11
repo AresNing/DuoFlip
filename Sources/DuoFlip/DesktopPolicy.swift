@@ -10,18 +10,18 @@ struct DesktopPolicy {
     mutating func enable(){armed=true;visible=false;needsOpen=true}
     mutating func disable(){armed=false;visible=false;needsOpen=true}
     mutating func invalidate(){visible=false;needsOpen=true}
-    mutating func update(angle:Double?,progress:Double,strength:Double,frameReady:Bool)->Action {
+    mutating func update(angle:Double?,progress:Double,strength:Double,frameReady:Bool,angles:LidAngles=LidAngles())->Action {
         guard armed else{return .none}
         guard let angle,angle.isFinite else {
             let was=visible;invalidate();return was ? .hide:.none
         }
         if needsOpen {
-            if angle>=95 {needsOpen=false}
+            if angle>=angles.ready {needsOpen=false}
             return .none
         }
         if visible {
-            if angle>=91 || strength<=0 {visible=false;return .hide}
-        } else if angle<88,progress>0.001,strength>0,frameReady {
+            if angle>=angles.hide || strength<=0 {visible=false;return .hide}
+        } else if angle<angles.show,progress>0.001,strength>0,frameReady {
             visible=true;return .show
         }
         return .none

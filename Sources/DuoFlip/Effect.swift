@@ -2,11 +2,21 @@ import AppKit
 import CoreImage
 import MetalKit
 
+struct LidAngles:Equatable {
+    static let range=75.0...125.0
+    let start:Double
+    let end=20.0
+    var ready:Double {start+5}
+    var show:Double {start-2}
+    var hide:Double {start+1}
+    init(_ value:Double=90) {
+        start=value.isFinite ? min(Self.range.upperBound,max(Self.range.lowerBound,value.rounded())):90
+    }
+}
+
 struct MotionState {
     private(set) var angle: Double?
     private var lastTime: TimeInterval?
-    let startAngle = 90.0
-    let endAngle = 20.0
     mutating func reset() { angle = nil; lastTime = nil }
     mutating func accept(_ raw: Double, at time: TimeInterval) {
         guard raw.isFinite, (0...180).contains(raw) else { reset(); return }
@@ -16,9 +26,9 @@ struct MotionState {
         } else { angle = raw }
         lastTime = time
     }
-    func progress(for override: Double? = nil) -> Double {
+    func progress(for override: Double? = nil, angles:LidAngles=LidAngles()) -> Double {
         guard let a = override ?? angle else { return 0 }
-        let t = min(1,max(0,(startAngle-a)/(startAngle-endAngle)))
+        let t = min(1,max(0,(angles.start-a)/(angles.start-angles.end)))
         return t*t*(3-2*t)
     }
 }

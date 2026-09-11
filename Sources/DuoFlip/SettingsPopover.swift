@@ -11,6 +11,8 @@ final class SettingsState:ObservableObject {
     @Published var meetingApps=Set(UserDefaults.standard.stringArray(forKey:"meetingApps") ?? MeetingApp.supported.map(\.id))
     @Published var meetingBlocker:String?
     @Published var strength:Double
+    @Published var triggerAngle=LidAngles(UserDefaults.standard.object(forKey:"triggerAngle") as? Double ?? 90).start
+    var onTriggerAngle:((Double)->Void)?
     var onToggle:((Bool)->Void)?
     var onStrength:((Double)->Void)?
     var onOptionsChanged:(()->Void)?
@@ -42,6 +44,16 @@ struct SettingsPage:View {
                         }
                         Slider(value:Binding(get:{state.strength},set:{state.onStrength?($0)}),in:0.25...1)
                             .accessibilityLabel(L10n.text("Effect strength"))
+                    }
+                    VStack(alignment:.leading,spacing:8) {
+                        HStack {
+                            Text(L10n.text("Trigger angle"))
+                            Spacer()
+                            Text("\(Int(state.triggerAngle))°").monospacedDigit().foregroundStyle(.secondary)
+                        }
+                        Slider(value:Binding(get:{state.triggerAngle},set:{state.onTriggerAngle?($0)}),in:LidAngles.range)
+                            .accessibilityLabel(L10n.text("Trigger angle"))
+                            .accessibilityValue("\(Int(state.triggerAngle))°")
                     }
                 }
                 Section {

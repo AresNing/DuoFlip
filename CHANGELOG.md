@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add a persistent 75°–125° trigger-angle slider (default 90°, 1° steps), with matching animation, trigger and wake thresholds.
+- Require a new open reading after angle changes; keep the ready status concise and omit the trigger-angle helper text.
+- Clamp saved trigger angles to the slider's range, preserve the paused status when changing angles, and update bilingual packaged usage instructions.
+
 ## 0.8.0
 
 - Add English and Simplified Chinese, with system-language defaults and persistent live switching in the menu bar popover.
