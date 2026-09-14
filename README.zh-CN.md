@@ -97,3 +97,13 @@ ThirdParty/       第三方许可
 翻盖传感器协议参考 [Sam Gold 的 LidAngleSensor](https://github.com/samhenrigold/LidAngleSensor)。完整说明见 [第三方声明](THIRD_PARTY_NOTICES.md)。DuoFlip 是独立应用，不代表 Apple 官方产品或背书。
 
 DuoFlip 自有代码和品牌素材目前尚未指定开源许可证；公开可见不等于授予通用的使用、修改或再分发许可。第三方内容遵循其各自许可证。
+
+## Star 历史
+
+<a href="https://www.star-history.com/?repos=AresNing%2FDuoFlip&amp;type=date&amp;legend=top-left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=AresNing/DuoFlip&amp;type=date&amp;theme=dark&amp;legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=AresNing/DuoFlip&amp;type=date&amp;legend=top-left" />
+    <img alt="DuoFlip Star 增长历史图表" src="https://api.star-history.com/chart?repos=AresNing/DuoFlip&amp;type=date&amp;legend=top-left" />
+  </picture>
+</a>

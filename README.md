@@ -97,3 +97,13 @@ This implementation needs screen pixels to transform the actual desktop. Screen-
 The lid-angle sensor protocol references [Sam Gold's LidAngleSensor](https://github.com/samhenrigold/LidAngleSensor). See the [third-party notices](THIRD_PARTY_NOTICES.md) for details. DuoFlip is an independent app, not an official Apple product or an Apple-endorsed implementation.
 
 DuoFlip's own code and brand assets do not currently have an open-source license. Public visibility does not grant a general license to use, modify, or redistribute them. Third-party material remains subject to its respective license.
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=AresNing%2FDuoFlip&amp;type=date&amp;legend=top-left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=AresNing/DuoFlip&amp;type=date&amp;theme=dark&amp;legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=AresNing/DuoFlip&amp;type=date&amp;legend=top-left" />
+    <img alt="DuoFlip Star History Chart" src="https://api.star-history.com/chart?repos=AresNing/DuoFlip&amp;type=date&amp;legend=top-left" />
+  </picture>
+</a>
